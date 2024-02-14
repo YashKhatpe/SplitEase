@@ -3,11 +3,13 @@
 # dependencies
 node_modules/
 .env
+firebaseConfig.js
 # Expo
 .expo/
+android
 dist/
 web-build/
-
+yarn.lock
 # Native
 *.orig.*
 *.jks

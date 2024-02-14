@@ -24,7 +24,21 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "mode": "development"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e22ff171-476c-41a5-be1b-0a38c192d02f"
+      }
+    },
+    "plugins": [
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        }
+      ]
+    ]
   }
 }

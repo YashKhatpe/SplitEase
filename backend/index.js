@@ -1,33 +1,32 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors')
-const bodyParser = require('body-parser');
-const app = express();
-const port =  5000;
+const { initializeApp } = require("firebase/app");
+const { getDatabase, set, ref } = require("firebase/database");
 
+// TODO: Replace the following with your app's Firebase project configuration
+// See: https://firebase.google.com/docs/web/learn-more#config-object
+const firebaseConfig = {
+  apiKey: "AIzaSyDeCmYdsbTwNJwQHaCewTB4dctJf-93mMU",
+  authDomain: "bill-splitter-934ca.firebaseapp.com",
+  databaseURL: "https://bill-splitter-934ca-default-rtdb.firebaseio.com",
+  projectId: "bill-splitter-934ca",
+  storageBucket: "bill-splitter-934ca.appspot.com",
+  messagingSenderId: "985820815188",
+  appId: "1:985820815188:web:c4509e620e3252e1ffb2c1",
+  measurementId: "G-39KV2ZD12N"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-require('dotenv').config();
-// Middleware
-app.use(cors()); // Enable CORS for all routes
-app.use(bodyParser.json());
-const mongo_uri = process.env.MONGO_URI
-// Connect to MongoDB (replace with your connection string)
-let db;
-const connectToMongo = async () => {
-    try {
-        if (!db) {
-            db = await mongoose.connect(mongo_uri);
-            console.log('MongoDB connected');
-        }
-    } catch (error) {
-        console.log('Error connecting to MongoDB: ' + error);
-    }
-}
+export default app;
+// Initialize Realtime Database and get a reference to the service
+// const database = getDatabase(app);
 
-connectToMongo();
+// function insertdata() {
 
+//   set(ref(database, 'users/'), {
+//     username: 'Yash',
+//     email: 'yash@gmail.com',
+//     profile_picture : 'dxyz.png'
+//   });
+// }
 
-app.use('/api/auth', require('./routes/auth'));
-
-// ... rest of the code
-app.listen(port, ()=> console.log(`Listening on port ${port}`))
+// insertdata();
