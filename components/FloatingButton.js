@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
 
-const FloatingButton = ({ onPress }) => {
+const FloatingButton = ({ onPress, text, textColor='white', rightVal=20 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {right: rightVal}]}>
       <TouchableOpacity onPress={onPress} style={styles.button}>
-        <Ionicons name="ios-add" size={36} color="white" />
+        <Text style={{color: textColor}}>{text}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -15,8 +15,8 @@ const FloatingButton = ({ onPress }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 60,
-    right: 20,
+    bottom: 0,
+    // pointerEvents: 'box-none'
   },
   button: {
     backgroundColor: 'green',

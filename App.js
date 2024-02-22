@@ -14,6 +14,8 @@ import FriendsScreen from "./screens/FriendsScreen";
 import GroupsScreen from "./screens/GroupsScreen";
 import ActivityScreen from "./screens/ActivityScreen";
 import AccountScreen from "./screens/AccountScreen";
+import BackButton from "./components/BackButton";
+import StartScreen from "./screens/StartScreen";
 
 
 const Stack = createStackNavigator();
@@ -37,12 +39,15 @@ export default function App() {
   return (
     <FirebaseProvider>
       <NavigationContainer>
+
         <Stack.Navigator> 
+          <Stack.Screen name="StartSceen" component={StartScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={Main} options={({ navigation }) => ({
-          headerShown: true,
+            headerShown: true,
           headerTitle: 'SplitEase',
+          headerLeft: () => <BackButton navigation={navigation}/>,
           headerRight: () => (
-        <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity
             style={{ marginRight: 10 }}
             onPress={() => navigation.navigate('AddFriend')}
@@ -60,8 +65,8 @@ export default function App() {
       ),
     })} />
           <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false, cardStyle: {backgroundColor: 'lightblue'} }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false, cardStyle: {backgroundColor: 'green'} }} />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
@@ -106,4 +111,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  container1: {
+    flex: 1,
+    backgroundColor: 'green'
+  }
 });

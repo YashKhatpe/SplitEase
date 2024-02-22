@@ -1,42 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert, Modal, Text, KeyboardAvoidingView } from "react-native";
 import { Input, Button, Image } from "react-native-elements";
-import { useFirebase } from '../context/AuthContext';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-// import UserInput from "./UserInput";
-const Login = ({navigation}) => {
+import { useFirebase } from "../context/AuthContext";
+const Login = ({ navigation }) => {
   const firebase = useFirebase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  useEffect(() => {
-    if(firebase.isLoggedIn){
-     navigation.navigate('Home');
-    }
-   }, [firebase, navigation]);
-  const handleLogin = async(e) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleLogin = async (e) => {
     // Implement your login logic here
-    if (e.nativeEvent.key === 'Enter') {
+    if (e.nativeEvent.key === "Enter") {
       e.preventDefault();
     }
     try {
-      const logIn = await firebase.loginUserWithEmailAndPass(email, password)
-      if(logIn) {
-        console.warn('Login Successful');
-        AsyncStorage.setItem('User-Token', email)
-        navigation.navigate('Main');
-        // ToastAndroid("Login Successful", ToastAndroid.LONG)
+      const logIn = await firebase.loginUserWithEmailAndPass(email, password);
+      if (logIn) {
+        setShowModal(true);
         return;
-      } 
-      
+      } else {
+        Alert.alert(
+          "SplitEase",
+          "Log In Unsuccessful",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("Login"),
+            },
+          ],
+          { cancelable: false }
+        );
+      }
     } catch (error) {
       
-      // ToastAndroid("Please enter correct credentials", ToastAndroid.LONG)
-      console.warn('Login Error: ', error.message);
-    }
 
+      console.warn("Login Error: ", error.message);
+    }
   };
 
+  const handleModalSuccess = () => {
+    navigation.navigate("Main")
+    setShowModal(false);
+    
+  }
+
   return (
+    <KeyboardAvoidingView>
+
     <View style={styles.container}>
       <Image source={require("../assets/login_img.png")} style={styles.logo} />
       <Input
@@ -44,7 +54,6 @@ const Login = ({navigation}) => {
         leftIcon={{ type: "font-awesome", name: "envelope" }}
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
         autoCapitalize="none"
       />
       <Input
@@ -53,37 +62,50 @@ const Login = ({navigation}) => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-      />
+        />
       <Button
         title="Login"
         onPress={handleLogin}
         containerStyle={styles.buttonContainer}
       />
+
+      <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowModal(false)}
+        >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+          >
+          <View
+            style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              alignItems: "center",
+            }}
+            >
+            <Image
+              source={{
+                uri: "https://media1.tenor.com/m/0AVbKGY_MxMAAAAC/check-mark-verified.gif",
+              }}
+              style={{ width: 50, height: 50 }}
+              />
+            <Text style={{ marginTop: 10, fontSize: 17 }}>
+              Logged In successfully!
+            </Text>
+            <Button title="OK" onPress={handleModalSuccess} />
+          </View>
+        </View>
+      </Modal>
     </View>
-    // <KeyboardAvoidingView behavior="padding" style={styles.container}>
-    // <Input
-    //   leftIcon={{ type: "font-awesome", name: "envelope" }}
-    //   placeholder="Username"
-    //   autoCapitalize={'none'}
-    //   returnKeyType={'done'}
-    //   autoCorrect={false}
-    // />
-    // <Input
-    //   leftIcon={{ type: "font-awesome", name: "lock" }}
-    //   secureTextEntry
-    //   placeholder="Password"
-    //   returnKeyType={'done'}
-    //   autoCapitalize={'none'}
-    //   autoCorrect={false}
-    // />
-    
-    //  <TouchableOpacity
-    //   activeOpacity={0.7}
-    //   style={styles.btnEye}
-    //   onPress={this.showPass}>
-    //   <Image source={eyeImg} style={styles.iconEye} />
-    // </TouchableOpacity> 
-  // </KeyboardAvoidingView>
+</KeyboardAvoidingView>
   );
 };
 

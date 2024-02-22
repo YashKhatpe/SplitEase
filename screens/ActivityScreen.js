@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-const ActivityScreen = () => {
+const ActivityScreen = ({navigation}) => {
   return (
     <View>
       <Text>Activity Screen</Text>
