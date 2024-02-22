@@ -14,6 +14,7 @@ import FriendsScreen from "./screens/FriendsScreen";
 import GroupsScreen from "./screens/GroupsScreen";
 import ActivityScreen from "./screens/ActivityScreen";
 import AccountScreen from "./screens/AccountScreen";
+import sign from "./styles/sign";
 
 
 const Stack = createStackNavigator();
@@ -35,36 +36,38 @@ export default function App() {
     });
   }, []);
   return (
-    <FirebaseProvider>
-      <NavigationContainer>
-        <Stack.Navigator> 
+    
+      <FirebaseProvider >
+      <NavigationContainer style={styles.container}>
+        <Stack.Navigator>
           <Stack.Screen name="Main" component={Main} options={({ navigation }) => ({
-          headerShown: true,
-          headerTitle: 'SplitEase',
-          headerRight: () => (
-        <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity
-            style={{ marginRight: 10 }}
-            onPress={() => navigation.navigate('AddFriend')}
+            headerShown: true,
+            headerTitle: 'SplitEase',
+            headerRight: () => (
+              <View style={{ flexDirection: 'row'}}>
+                <TouchableOpacity
+                  style={{ marginRight: 10 }}
+                  onPress={() => navigation.navigate('AddFriend')}
 
-          >
-            <Ionicons name="person-add" size={24} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ marginRight: 15 }}
-            onPress={() => navigation.navigate('Search')}
-          >
-            <Ionicons name="search" size={24} />
-          </TouchableOpacity>
-        </View>
-      ),
-    })} />
+                >
+                  <Ionicons name="person-add" size={24} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ marginRight: 15 }}
+                  onPress={() => navigation.navigate('Search')}
+                >
+                  <Ionicons name="search" size={24} />
+                </TouchableOpacity>
+              </View>
+            ),
+          })} />
           <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false, cardStyle:{backgroundColor:'#121529'} }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false,cardStyle:{backgroundColor:'#121529'} }} />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
+    
   );
 }
 function Main() {
@@ -99,11 +102,10 @@ function Main() {
     </Tab.Navigator>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#061c69', // Change this to your desired background color
   },
 });

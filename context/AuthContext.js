@@ -6,8 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged, 
-  updateProfile
+  onAuthStateChanged
 } from "@firebase/auth";
 import { getDatabase, set, ref } from "@firebase/database";
 import firebaseConfig from "./firebaseConfig";
