@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     fontSize: 18,
     fontWeight: "bold",
+    color:'white'
   },
   ionicon: {
     marginLeft: 2,

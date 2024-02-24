@@ -3,6 +3,8 @@
     "name": "MiniProject",
     "slug": "MiniProject",
     "version": "1.0.0",
+    "platforms": ["ios", "android"],
+    "assets": ["assets/fonts"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

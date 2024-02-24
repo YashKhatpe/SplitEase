@@ -36,15 +36,15 @@ export default function App() {
     });
   }, []);
   return (
-    
-      <FirebaseProvider >
+
+    <FirebaseProvider >
       <NavigationContainer style={styles.container}>
         <Stack.Navigator>
           <Stack.Screen name="Main" component={Main} options={({ navigation }) => ({
             headerShown: true,
             headerTitle: 'SplitEase',
             headerRight: () => (
-              <View style={{ flexDirection: 'row'}}>
+              <View style={{ flexDirection: 'row' }}>
                 <TouchableOpacity
                   style={{ marginRight: 10 }}
                   onPress={() => navigation.navigate('AddFriend')}
@@ -62,20 +62,28 @@ export default function App() {
             ),
           })} />
           <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false, cardStyle:{backgroundColor:'#121529'} }} />
-          <Stack.Screen name="Login" component={Login} options={{ headerShown: false,cardStyle:{backgroundColor:'#121529'} }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false, cardStyle: { backgroundColor: 'transparent' } }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false, cardStyle: { backgroundColor: '#181A20' } }} />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
-    
+
   );
 }
 function Main() {
   return (
     <Tab.Navigator
+      sceneContainerStyle={styles.mainBody}
       tabBarOptions={{
         activeTintColor: 'blue',
         inactiveTintColor: 'gray',
+        style: {
+          height:50,
+
+          backgroundColor: '#121529', 
+          borderTopWidth: 0,
+
+        }
       }}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
@@ -94,6 +102,7 @@ function Main() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
+
     >
       <Tab.Screen name="Friends" component={FriendsScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Groups" component={GroupsScreen} options={{ headerShown: false }} />
@@ -104,8 +113,14 @@ function Main() {
 }
 
 const styles = StyleSheet.create({
+  mainBody: {
+    backgroundColor: '#121529',
+  },
+  options: {
+    height: 60
+  },
   container: {
     flex: 1,
-    backgroundColor: '#061c69', // Change this to your desired background color
+    backgroundColor: '#061c69', 
   },
 });
