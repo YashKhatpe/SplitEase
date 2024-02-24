@@ -15,6 +15,7 @@ import GroupsScreen from "./screens/GroupsScreen";
 import ActivityScreen from "./screens/ActivityScreen";
 import AccountScreen from "./screens/AccountScreen";
 import sign from "./styles/sign";
+import { BlurView } from "expo-blur";
 
 
 const Stack = createStackNavigator();
@@ -72,36 +73,48 @@ export default function App() {
 }
 function Main() {
   return (
-    <Tab.Navigator
-      sceneContainerStyle={styles.mainBody}
+    <BlurView intensity={80} style={{ ...StyleSheet.absoluteFill }}>
+      <Tab.Navigator
+      // sceneContainerStyle={styles.mainBody}
       tabBarOptions={{
-        activeTintColor: 'blue',
+        activeTintColor: 'green',
         inactiveTintColor: 'gray',
-        style: {
-          height:50,
-
-          backgroundColor: '#121529', 
-          borderTopWidth: 0,
-
-        }
+        
       }}
-      screenOptions={({ route }) => ({
+      screenOptions={({ route, state }) => ({
+        tabBarStyle:{
+          position:'absolute',
+          bottom:0,
+          height:70,
+          borderTopLeftRadius:25,
+          borderTopRightRadius:25,
+          backgroundColor:'rgba(0,0,36,0.8)',
+          elevation:0,
+          borderTopWidth:0,
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName;
-
-          if (route.name === 'Friends') {
-            iconName = 'person-outline';
-          } else if (route.name === 'Groups') {
-            iconName = 'ios-people-outline';
-          } else if (route.name === 'Activity') {
-            iconName = 'ios-notifications-outline';
-          } else if (route.name === 'Account') {
-            iconName = 'person-outline';
+      
+          // Ensure that state is defined and not empty
+          if (state && state.routes) {
+            // Check if the current route is focused
+            const focused = state.index === state.routes.findIndex(r => r.name === route.name);
+        
+            if (route.name === 'Friends') {
+              iconName = focused ? 'person' : 'person-outline';
+            } else if (route.name === 'Groups') {
+              iconName = focused ? 'people' : 'people-outline';
+            } else if (route.name === 'Activity') {
+              iconName = focused ? 'notifications' : 'notifications-outline';
+            } else if (route.name === 'Account') {
+              iconName = focused ? 'person' : 'person-outline';
+            }
           }
-
+        
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
+      
 
     >
       <Tab.Screen name="Friends" component={FriendsScreen} options={{ headerShown: false }} />
@@ -109,6 +122,7 @@ function Main() {
       <Tab.Screen name="Activity" component={ActivityScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
+    </BlurView>
   );
 }
 
@@ -121,6 +135,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#061c69', 
+    backgroundColor: '#061c69',
   },
 });

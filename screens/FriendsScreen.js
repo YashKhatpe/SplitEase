@@ -39,20 +39,20 @@ const FriendsScreen = ({ navigation }) => {
       }
     }
     console.log("In load contacts function");
-    console.log('Selected Contacts: ',selectedFriends);
+    console.log('Selected Contacts: ', selectedFriends);
   };
   const handleLoadContactsAgain = async () => {
-    
+
     setShowSelectedFriends(false);
     setLoadContactsAgain(true);
-    
+
     console.log("In load contacts again function");
-    console.log('Selected Contacts: ',selectedFriends);
+    console.log('Selected Contacts: ', selectedFriends);
     // console.log('Contacts: ',contacts);
   };
- 
+
   // const handleFriendSelection = (friendId, friendName) => {
-      
+
   //     const isSelected = selectedFriends.some(
   //       (friend) => friend.id === friendId
   //     );
@@ -62,15 +62,15 @@ const FriendsScreen = ({ navigation }) => {
   //     setSelectedFriends(updatedSelectedFriends);
   // };
   const handleFriendSelection1 = (contact) => {
-      
-      const isSelected = selectedFriends.some(
-        (friend) => friend.contactInfo.id === contact.id
-      );
-      console.log('isSelected: ',isSelected);
-      const updatedSelectedFriends = isSelected
-        ? selectedFriends.filter((friend) => friend.contactInfo.id !== contact.id)
-        : [...selectedFriends, { contactInfo: contact }];
-      setSelectedFriends(updatedSelectedFriends);
+
+    const isSelected = selectedFriends.some(
+      (friend) => friend.contactInfo.id === contact.id
+    );
+    console.log('isSelected: ', isSelected);
+    const updatedSelectedFriends = isSelected
+      ? selectedFriends.filter((friend) => friend.contactInfo.id !== contact.id)
+      : [...selectedFriends, { contactInfo: contact }];
+    setSelectedFriends(updatedSelectedFriends);
   };
 
   const handleAddFriends = async () => {
@@ -82,15 +82,15 @@ const FriendsScreen = ({ navigation }) => {
     const userId = currUser.slice(0, atIndex);
     const path = `users/${userId}/friends`;
 
-   // Filter out added friends from the contacts state
-   const remainingContacts = contacts.filter(contact => {
-    // Check if the contact is not in the selectedFriends array
-    return !selectedFriends.some(selectedFriend => selectedFriend.contactInfo.id === contact.id);
-});
+    // Filter out added friends from the contacts state
+    const remainingContacts = contacts.filter(contact => {
+      // Check if the contact is not in the selectedFriends array
+      return !selectedFriends.some(selectedFriend => selectedFriend.contactInfo.id === contact.id);
+    });
 
     // Store remaining contacts in the state
     setContacts(remainingContacts); // No same contacts will be displayed to user which is akready being added as a friends
-  
+
 
     // Store selected friends in the database
     try {
@@ -102,8 +102,8 @@ const FriendsScreen = ({ navigation }) => {
         error.message
       );
     }
-    console.log(' Contacts: ',contacts);
-    console.log(' Selected friends: ',selectedFriends);
+    console.log(' Contacts: ', contacts);
+    console.log(' Selected friends: ', selectedFriends);
     setShowSelectedFriends(true);
   };
 
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     fontSize: 18,
     fontWeight: "bold",
-    color:'white'
+    color: 'white'
   },
   ionicon: {
     marginLeft: 2,
