@@ -48,23 +48,22 @@ const Home = ({navigation}) => {
 
       const handleExpense = () => {
         console.log('Adding New Expense');
+        navigation.navigate('Friends')
       }
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={styles.container}>
       <Text>Welcome To Home Page</Text>
       <Text> {user && user.email}</Text>
       <Button title={"Sign Out"} onPress={handleLogout}/>
-      <FloatingButton onPress={handleExpense}/>
+      <FloatingButton text={'+'} onPress={handleExpense}/>
     </View>
   );
 }
 const styles = StyleSheet.create({
     container: {
-      // flex: 1,
+      flex: 1,
       justifyContent: "center",
-      alignItems: "center",
-      // padding: 20,
-      marginTop: 120,
+      alignItems: "center"
     }
   });
 export default Home;

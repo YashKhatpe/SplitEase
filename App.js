@@ -14,8 +14,6 @@ import FriendsScreen from "./screens/FriendsScreen";
 import GroupsScreen from "./screens/GroupsScreen";
 import ActivityScreen from "./screens/ActivityScreen";
 import AccountScreen from "./screens/AccountScreen";
-import sign from "./styles/sign";
-import { BlurView } from "expo-blur";
 
 
 const Stack = createStackNavigator();
@@ -37,18 +35,17 @@ export default function App() {
     });
   }, []);
   return (
-
-    <FirebaseProvider >
-      <NavigationContainer style={styles.container}>
-        <Stack.Navigator>
+    <FirebaseProvider>
+      <NavigationContainer>
+        <Stack.Navigator> 
           <Stack.Screen name="Main" component={Main} options={({ navigation }) => ({
-            headerShown: true,
-            headerTitle: 'SplitEase',
-            headerRight: () => (
-              <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity
-                  style={{ marginRight: 10 }}
-                  onPress={() => navigation.navigate('AddFriend')}
+          headerShown: true,
+          headerTitle: 'SplitEase',
+          headerRight: () => (
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{ marginRight: 10 }}
+            onPress={() => navigation.navigate('AddFriend')}
 
                 >
                   <Ionicons name="person-add" size={24} />
@@ -63,8 +60,8 @@ export default function App() {
             ),
           })} />
           <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false, cardStyle: { backgroundColor: 'transparent' } }} />
-          <Stack.Screen name="Login" component={Login} options={{ headerShown: false, cardStyle: { backgroundColor: '#181A20' } }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
@@ -137,4 +134,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#061c69',
   },
+  container1: {
+    flex: 1,
+    backgroundColor: 'green'
+  }
 });
