@@ -1,31 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
 import { Input, Button, Image, Text } from 'react-native-elements';
 import { database, useFirebase } from '../context/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Font from 'expo-font';
 // import FadeInView from '../FadeInView';
 
 const Signup = ({ navigation }) => {
   const firebase = useFirebase();
-  const [showModal, setShowModal] = useState(false);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState(null);
-
+  const [buttonColor, setButtonColor] = useState("#246BFD");
+  const [fontLoaded, setFontLoaded] = useState(false);
 
   useEffect(() => {
-   if(firebase.isLoggedIn){
-    navigation.navigate('Home');
-   }
+    if (firebase.isLoggedIn) {
+      navigation.navigate('Home');
+    }
   }, [firebase, navigation]);
+  // const window = useWindowDimensions();
+  useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        'Arial': require('../assets/fonts/arial.ttf'),
+      });
+      setFontLoaded(true);
+    };
+    loadFonts();
+  }, []);
+
+  // If fonts haven't loaded yet, don't render the component
+  if (!fontLoaded) {
+    return null;
+  }
+
 
 
   const handleSignup = async () => {
     try {
       const signUp = await firebase.signupUserWithEmailAndPass(email, password);
-      if(signUp) {  
+      if (signUp) {
 
         console.warn('Sign Up Successful');
         console.log(signUp);
@@ -43,77 +61,113 @@ const Signup = ({ navigation }) => {
         }
         // AsyncStorage.setItem('User-Token', email)
       }
-      
+
     } catch (error) {
       // Handle registration errors
-      console.error("Registration error:", error.message);
+      // ToastAndroid.show('Error while registering', ToastAndroid.LONG)
+      console.error('Registration error:', error.message);
     }
   };
+  const handlePressIn = () => {
+    setButtonColor("#181827");
+  }
 
-  
+  const handlePressOut = () => {
+    setButtonColor("#246BFD");
+  }
+
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('../assets/login_img.png')} // Add your logo path here
-        style={styles.logo}
-      />
-  
-      <Input
-        placeholder="Username"
-        leftIcon={{ type: 'font-awesome', name: 'user' }}
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
+    <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: -1, y: 0 }}
+      end={{ x: 1, y: 1 }} style={styles.container}
+    >
+      <View style={styles.signupFont}>
+          <Text style={{color:'white',fontSize:45,fontFamily:'Arial'}}>
+            Sign up
+          </Text>
+        </View>
+      <View style={styles.innerContainer}>
+        
+
+        <View style={styles.inputsContainer}>
+          <Input
+            placeholder="Username"
+            leftIcon={{ type: 'font-awesome', name: 'user', color: 'white' }}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            style={styles.inputs}
+          />
 
 
-      <Input
-        placeholder="Email"
-        leftIcon={{ type: 'font-awesome', name: 'envelope' }}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        error={!!emailError}
-        errorStyle={{ color: 'red' }}
-      />
-      <Input
-        placeholder="Password"
-        leftIcon={{ type: 'font-awesome', name: 'lock' }}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Input
-        placeholder="Confirm Password"
-        leftIcon={{ type: 'font-awesome', name: 'lock' }}
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-        <Text >Already have an account. </Text>
-        <TouchableOpacity onPress={()=>navigation.navigate('Login')}><Text style={{ color: 'blue', textDecorationLine: 'underline' }}>Log In?</Text></TouchableOpacity>
+          <Input
+            placeholder="Email"
+            leftIcon={{ type: 'font-awesome', name: 'envelope', color: 'white' }}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            error={!!emailError}
+            errorStyle={{ color: 'red' }}
+            style={styles.inputs}
+          />
+          <Input
+            placeholder="Password"
+            leftIcon={{ type: 'font-awesome', name: 'lock', color: 'white' }}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.inputs}
+          />
+          <Input
+            placeholder="Confirm Password"
+            leftIcon={{ type: 'font-awesome', name: 'lock', color: 'white' }}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            style={styles.inputs}
+          />
+        </View>
+        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+          <Text style={{ color: 'white' }}>Already have an account. </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.login}>
+              Log In?
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          title="Submit"
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={handleSignup}
+          style={[styles.buttonContainer, { backgroundColor: buttonColor }]}
+        >
+          <Text style={styles.button}>
+            Submit
+          </Text>
+        </TouchableOpacity>
 
-
-      <Button
-        title="Submit"
-        onPress={handleSignup}
-        containerStyle={styles.buttonContainer}
-
-      />
-    </View>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-     // flex: 1,
-     justifyContent: 'center',
-     alignItems: 'center',
-     // padding: 20,
-     marginTop: 5
+    // flex: 1,
+    // justifyContent: 'center',
+    // // alignItems: 'center',
+    // alignContent:'center',
+    // // padding: 20,
+    // marginTop: 100,
+    height:'100%'
+  },
+  innerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    // height: '60%'
   },
   signupFont: {
     color: 'white',
