@@ -22,8 +22,6 @@ const AccountScreen = ({navigation}) => {
           console.log('User Eamil: ', email);
           const atIndex = email.indexOf("@");
           const shortEmail = email.slice(0, atIndex);
-          // const uname = await firebase.getUsernameFromshortEmail(shortEmail);
-          // console.log('UserName: ', uname);
           let currUser;
           getUsernameFromEmail(shortEmail)
           .then((uname) => {
@@ -61,8 +59,7 @@ const AccountScreen = ({navigation}) => {
             }
           });
         }
-        return () => fetchPicUrlFromDb();
-        // Return cleanup function to unsubscribe the listener
+      fetchPicUrlFromDb();
       }
     }, [firebase.isLoggedIn, firebase.user]);
 
@@ -101,9 +98,10 @@ const AccountScreen = ({navigation}) => {
     
     
 
-  const handleLogout = () => {
-    firebase.signUserOut();
-    navigation.navigate('Signup')
+  const handleLogout = async() => {
+    // firebase.setUser(null);
+    await firebase.signUserOut();
+    navigation.navigate('StartSceen');
   }
   return (
     <View  style={{ flex: 1 }}>
@@ -158,7 +156,7 @@ const styles = StyleSheet.create({
   profilePic: {
     width: 80, 
     height: 80, 
-    borderRadius: 25, 
+    borderRadius: 15, 
     marginLeft: 10 ,
     margin: 15
   }
