@@ -4,6 +4,7 @@
 node_modules/
 .env
 firebaseConfig.js
+experiments.js
 # Expo
 .expo/
 android

@@ -1,236 +1,45 @@
-// import React, { useEffect, useState } from "react";
-// import { View, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView } from "react-native";
-// import { Input, Button, Image, Text } from "react-native-elements";
-// import { database, useFirebase } from "../context/AuthContext";
-// // import FadeInView from '../FadeInView';
-
-// const Signup = ({ navigation }) => {
-//   const firebase = useFirebase();
-//   const [showModal, setShowModal] = useState(false);
-//   const [username, setUsername] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [confirmPassword, setConfirmPassword] = useState("");
-//   const [emailError, setEmailError] = useState(null);
-//   useEffect(() => {
-//     if (firebase.isLoggedIn) {
-//       navigation.navigate("Home");
-//     }
-//   }, [firebase, navigation]);
-
-//   const handleSignup = async () => {
-//     try {
-//       const signUp = await firebase.signupUserWithEmailAndPass(
-//         email,
-//         username,
-//         password
-//         );
-//         if (signUp) {
-//           console.warn("Sign Up Successful");
-//           console.log(signUp);
-//           setShowModal(true);
-       
-//       } else {
-//         Alert.alert(
-//           "SplitEase",
-//           "Sign Up Unsuccessful",
-//           [
-//             {
-//               text: "OK",
-//               onPress: () => navigation.navigate("Signup"),
-//             },
-//           ],
-//           { cancelable: false }
-//         );
-//       }
-//     } catch (error) {
-//       // Handle registration errors
-//       console.error("Registration error:", error.message);
-//     }
-//   };
-
-//   return (
-//     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-
-//     <View style={styles.container}>
-//       <Image
-//         source={require("../assets/login_img.png")} // Add your logo path here
-//         style={styles.logo}
-//       />
-
-//       <Input
-//         placeholder="Username"
-//         leftIcon={{ type: "font-awesome", name: "user" }}
-//         value={username}
-//         onChangeText={setUsername}
-//         autoCapitalize="none"
-//         />
-
-//       <Input
-//         placeholder="Email"
-//         leftIcon={{ type: "font-awesome", name: "envelope" }}
-//         value={email}
-//         onChangeText={setEmail}
-//         keyboardType="email-address"
-//         autoCapitalize="none"
-//         autoCorrect={false}
-//         error={!!emailError}
-//         errorStyle={{ color: "red" }}
-//       />
-//       <Input
-//         placeholder="Password"
-//         leftIcon={{ type: "font-awesome", name: "lock" }}
-//         value={password}
-//         onChangeText={setPassword}
-//         secureTextEntry
-//       />
-//       <Input
-//         placeholder="Confirm Password"
-//         leftIcon={{ type: "font-awesome", name: "lock" }}
-//         value={confirmPassword}
-//         onChangeText={setConfirmPassword}
-//         secureTextEntry
-//         />
-//       <Text>Already have an account. </Text>
-//       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-//         <Text style={{ color: "blue", textDecorationLine: "underline" }}>
-//           Log In?
-//         </Text>
-//       </TouchableOpacity>
-
-//       <Button
-//         title="Submit"
-//         onPress={handleSignup}
-//         containerStyle={styles.buttonContainer}
-//       />
-
-//       <Modal
-//         visible={showModal}
-//         animationType="slide"
-//         transparent={true}
-//         onRequestClose={() => setShowModal(false)}
-//         >
-//         <View
-//           style={{
-//             flex: 1,
-//             justifyContent: "center",
-//             alignItems: "center",
-//             backgroundColor: "rgba(0, 0, 0, 0.5)",
-//           }}
-//           >
-//           <View
-//             style={{
-//               backgroundColor: "white",
-//               padding: 20,
-//               borderRadius: 10,
-//               alignItems: "center",
-//             }}
-//           >
-//               <Image
-//               source={{
-//                 uri: "https://media1.tenor.com/m/0AVbKGY_MxMAAAAC/check-mark-verified.gif",
-//               }}
-//               style={{ width: 50, height: 50 }}
-//               />
-//             <Text style={{ marginTop: 10, fontSize: 17 }}>
-//               Account created successfully!
-//             </Text>
-//             <Button title="OK" onPress={() => setShowModal(false)} />
-//           </View>
-//         </View>
-//       </Modal>
-//     </View>
-// </KeyboardAvoidingView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//     // padding: 20,
-//     marginTop: 5,
-//   },
-//   logo: {
-//     width: 150,
-//     height: 150,
-//     marginBottom: 20,
-//   },
-//   buttonContainer: {
-//     marginTop: 20,
-//     // width: '100%',
-//   },
-// });
-
-// export default Signup;
-
-
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, Alert } from 'react-native';
 import { Input, Text } from 'react-native-elements';
 import { useFirebase } from '../context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-// import * as Font from 'expo-font';
-// import FadeInView from '../FadeInView';
+
 
 const Signup = ({ navigation }) => {
+
   const firebase = useFirebase();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState(null);
   const [buttonColor, setButtonColor] = useState("#246BFD");
-  const [fontLoaded, setFontLoaded] = useState(false);
-
-  // useEffect(() => {
-  //   if (firebase.isLoggedIn) {
-  //     navigation.navigate('Home');
-  //   }
-  // }, [firebase, navigation]);
-  // const window = useWindowDimensions();
-  // useEffect(() => {
-  //   const loadFonts = async () => {
-  //     await Font.loadAsync({
-  //       'Arial': require('../assets/fonts/arial.ttf'),
-  //     });
-  //     setFontLoaded(true);
-  //   };
-  //   loadFonts();
-  // }, []);
-
-  // // If fonts haven't loaded yet, don't render the component
-  // if (!fontLoaded) {
-  //   return null;
-  // }
-
 
 
   const handleSignup = async () => {
     try {
-      const signUp = await firebase.signupUserWithEmailAndPass(email, password);
-      if (signUp) {
-
-        console.warn('Sign Up Successful');
-        console.log(signUp);
-        const atIndex = email.indexOf('@');
-        const userId = email.slice(0, atIndex);
-        const userData = {
-          userId,
-          username,
-          email
-        }
-        const key = `users/${userId}`;
-        const insertDataToDb = await firebase.putData(key, userData)
-        if (insertDataToDb) {
-          console.log('User Inserted Successfully');
-        }
+      if (!username || !email || !password || !confirmPassword || !phoneNumber) {
+        Alert.alert('Please enter all the fields.');
+        return;
       }
-
+      if(password !== confirmPassword){
+        Alert.alert('Please enter correct password in both the fields.');
+        return;
+      }
+      const checkUsername = await firebase.checkUserNameExists(username);
+      if(checkUsername){
+        console.log('Username already exists.');
+        Alert.alert('Username already exists.');
+        return;
+      }
+      const signUp = await firebase.signupUserWithEmailAndPass(email, username, password, phoneNumber);
+      console.log('Signup object: ', signUp);
+      if (signUp) {
+        console.warn('Sign Up Successful');
+        navigation.navigate('Main')
+      }
     } catch (error) {
-      // Handle registration errors
-      // ToastAndroid.show('Error while registering', ToastAndroid.LONG)
       console.error('Registration error:', error.message);
     }
   };
@@ -246,7 +55,7 @@ const Signup = ({ navigation }) => {
   return (
     <KeyboardAvoidingView>
 
-    <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: -1, y: 0 }}
+    <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }} style={styles.container}
     >
       <View style={styles.signupFont}>
@@ -278,6 +87,16 @@ const Signup = ({ navigation }) => {
             autoCorrect={false}
             error={!!emailError}
             errorStyle={{ color: 'red' }}
+            style={styles.inputs}
+            />
+
+
+          <Input
+            placeholder="Phone Number"
+            leftIcon={{ type: 'font-awesome', name: 'phone', color: 'white' }}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType='numeric'
             style={styles.inputs}
             />
           <Input
@@ -343,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'left',
     alignItems:'left',
     margin:50,
-    marginTop:80,
+    marginTop:45,
     marginBottom: 10
   },
   buttonContainer: {

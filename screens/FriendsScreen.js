@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Image
 } from "react-native";
-import { getDatabase, ref, onValue, get, set } from "@firebase/database";
+import { getDatabase, ref, onValue, get, set, push } from "@firebase/database";
 import * as Contacts from "expo-contacts";
 import { Ionicons } from "@expo/vector-icons";
 import { useFirebase } from "../context/AuthContext";
@@ -28,16 +28,13 @@ const FriendsScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Fetching user's friends from the database and storing in 'usersFriends' state
     console.log('User Login Status: ',firebase.isLoggedIn);
+    console.log('User Name: ',firebase.userName);
     const fetchData = async () => {
-      const db = getDatabase();
+      const db = getDatabase(); 
       if (firebase.user) {
-        const currUser = await firebase.user.email;
-        const atIndex = await currUser.indexOf("@");
-        const shortEmail = await currUser.slice(0, atIndex);
-        const uname = await firebase.getUsernameFromshortEmail(shortEmail)
-        const path = `users/friendsList/${uname}/friends`;
+        const userId = await firebase.user.uid;
+        const path = `users/accounts/pendingFriends/${userId}`;
         const friendsRef = ref(db, path);
   
         const unsubscribe = onValue(friendsRef, (snapshot) => {
@@ -53,15 +50,10 @@ const FriendsScreen = ({ navigation }) => {
           }
         });
   
-        // Return cleanup function to unsubscribe the listener
         return () => unsubscribe();
       }
     };
-  
     fetchData();
-  
-    // Cleanup function to unsubscribe the listener when component unmounts
-    // return () => {};
   }, [firebase.user]);
   
   
@@ -83,52 +75,80 @@ const FriendsScreen = ({ navigation }) => {
 
   
   const handleFriendSelection1 = (contact) => {
+    const uid = firebase.user.uid;
     const isSelected = selectedFriends.some(
       (friend) => friend.contactInfo.id === contact.id
     );
     console.log("isSelected: ", isSelected);
     const updatedSelectedFriends = isSelected
       ? selectedFriends.filter((friend) => friend.contactInfo.id !== contact.id)
-      : [...selectedFriends, { contactInfo: contact }];
+      : [...selectedFriends, { contactInfo: contact, phoneNo: contact.phoneNumbers[1].number, senderFriend: uid }];
     setSelectedFriends(updatedSelectedFriends);
   };
 
+  const checkAndAddUserToFriends = async (puid, phoneNo)=> {
+    try {
+      const result = await firebase.getData('users/accounts')
+      if (result) {
+        // Iterate over each child node (uid) in the snapshot
+        for (const uid in result) {
+          const uidSnapshot = result[uid];
+          // Check if the current uid has a phoneNumber property
+          if (uidSnapshot.phoneNumber && uidSnapshot.phoneNumber === phoneNo) {
+            // If the phone number matches, return the uid
+            await firebase.putData(`users/accounts/${puid}/friendsList/${uidSnapshot.uid}`, uidSnapshot);
+            return true;
+          }
+        }
+      } else {
+        
+      }
+    } catch (error) {
+      console.error('Error finding uid by phone number:', error);
+      return null;
+    }
+  }
+
   const handleAddFriends = async () => {
     // Add selected friends to Firebase
-    const currUser = await firebase.user.email;
-    const atIndex = await currUser.indexOf("@");
-    const shortEmail = await currUser.slice(0, atIndex);
-    const uname = await firebase.getUsernameFromshortEmail(shortEmail)
-    const path = `users/friendsList/${uname}/friends`;
+    const userId = await firebase.user.uid;
 
+    
     // Filter out added friends from the contacts state
     const remainingContacts = contacts.filter((contact) => {
       // Check if the contact is not in the selectedFriends array
       return !selectedFriends.some(
         (selectedFriend) => selectedFriend.contactInfo.id === contact.id
-      );
-    });
-
-    // Store remaining contacts in the state
-    setContacts(remainingContacts); // No same contacts will be displayed to user which is akready being added as a friends
-
-    // Store selected friends in the database
-    try {
-      const db = getDatabase();
-      const friendsRef = ref(db, path)
-      const snapshot = await get(friendsRef);
-      const existingFriends = snapshot.val() || {};
-      const updatedFriends = { ...existingFriends, selectedFriends}
+        );
+      });
       
-      await set(friendsRef, selectedFriends)
-      console.log("Selected friends added to the database successfully");
+      // Store remaining contacts in the state
+      setContacts(remainingContacts); // No same contacts will be displayed to user which is akready being added as a friends
+      
+      // Store selected friends in the database
+      try {
+        const db = getDatabase();
+        const path = `users/pendingFriends`;
+      const friendsRef = ref(db, path)
+      // const snapshot = await get(friendsRef);
+      // const existingFriends = snapshot.val() || {};
+      // const updatedFriends = { ...existingFriends, selectedFriends}
+      console.log('Shown Selected friends: ',selectedFriends.contactInfo);
+      selectedFriends.forEach(async (friend) => {
+        const data = {
+          phoneNo: friend.phoneNo,
+          senderFriend: userId
+        }
+        await push(friendsRef, data)
+      })
+      setSelectedFriends([])
+      console.log("Selected  friends added to the database successfully");
     } catch (error) {
       console.error(
         "Error adding selected friends to the database:",
         error.message
       );
     }
-    // console.log(' Contacts: ',contacts);
     console.log(" Selected friends: ", selectedFriends);
     setShowSelectedFriends(true);
   };
@@ -204,12 +224,9 @@ const FriendsScreen = ({ navigation }) => {
 
 
             <>
-            {/* // Displaying load contacts button for first time   */}
+            {/* // Displaying load contacts button and friends added   */}
             { showSelectedFriends && (   
             <View>
-                  {/* <FloatingButton rightVal={80} text={'Load Contacts'} onPress={handleLoadContacts}  />
-                  <FloatingButton rightVal={140} text={'Login'} onPress={() => navigation.navigate("Login")}  />
-                <FloatingButton text={'Signup'} onPress={() => navigation.navigate("Signup")}  /> */}
                   
                     {usersFriends && usersFriends.map(item => (
                       <MyListItem key={item.key} item={item}/>
@@ -229,7 +246,7 @@ const FriendsScreen = ({ navigation }) => {
       {!showSelectedFriends && selectedFriends.length > 0 && (
         <TouchableOpacity
           onPress={handleAddFriends}
-          style={{ alignItems: "center", paddingVertical: 16 }}
+          style={{ alignItems: "center", paddingVertical: 16, backgroundColor: '#00001f' }}
         >
           <Text>Add Selected Friends</Text>
         </TouchableOpacity>
