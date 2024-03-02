@@ -127,7 +127,7 @@ export default function App() {
             component={Login}
             options={{
               headerShown: false,
-              cardStyle: { backgroundColor: "green" },
+              // cardStyle: { backgroundColor: "green" },
             }}
           />
         </Stack.Navigator>
