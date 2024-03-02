@@ -1,12 +1,18 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 const FloatingButton = ({ onPress, text, textColor='white', rightVal=20 }) => {
   return (
     <View style={[styles.container, {right: rightVal}]}>
       <TouchableOpacity onPress={onPress} style={styles.button}>
-        <Text style={{color: textColor}}>{text}</Text>
+        {/* <Text style={{color: textColor}}>{text}</Text> */}
+        {/* <Ionicons
+            style={styles.ionicon}
+            name={text}
+            size={50}
+            color={"white"}
+          /> */}
       </TouchableOpacity>
     </View>
   );

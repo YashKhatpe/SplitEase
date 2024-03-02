@@ -23,11 +23,10 @@ import {
   equalTo
 } from "@firebase/database";
 import firebaseConfig from "./firebaseConfig";
-import firebase from 'firebase/app' 
 import 'firebase/database';
 
 // Initialize Firebase app
-const firebaseApp = initializeApp(firebaseConfig);
+export const firebaseApp = initializeApp(firebaseConfig);
 // initialize auth
 // const provider = new  GoogleAuthProvider();
 export const database = getDatabase(firebaseApp);

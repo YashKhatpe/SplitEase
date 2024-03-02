@@ -1,60 +1,216 @@
+// import React, { useState, useEffect } from "react";
+// import { View, StyleSheet, Alert, Modal, Text, KeyboardAvoidingView } from "react-native";
+// import { Input, Button, Image } from "react-native-elements";
+// import { useFirebase } from "../context/AuthContext";
+// import FriendsScreen from "./FriendsScreen";
+
+// const Login = ({ navigation }) => {
+//   const firebase = useFirebase();
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showModal, setShowModal] = useState(false);
+//   const [isLogIn, setIsLogIn] = useState(false);
+//   useEffect(() => {
+//     const logInStatus = firebase.isLoggedIn;
+//     console.log(logInStatus);
+//     logInStatus ? setIsLogIn(true) : setIsLogIn(false);
+//   }, []);
+
+//   const handleLogin = async (e) => {
+//     // Implement your login logic here
+//     if (e.nativeEvent.key === "Enter") {
+//       e.preventDefault();
+//     }
+//     try {
+//       const logIn = await firebase.loginUserWithEmailAndPass(email, password);
+//       if (logIn) {
+//         setShowModal(true);
+//         return;
+//       } else {
+//         Alert.alert(
+//           "SplitEase",
+//           "Log In Unsuccessful",
+//           [
+//             {
+//               text: "OK",
+//               onPress: () => navigation.navigate("Login"),
+//             },
+//           ],
+//           { cancelable: false }
+//         );
+//       }
+//     } catch (error) {
+      
+
+//       console.warn("Login Error: ", error.message);
+//     }
+//   };
+
+//   const handleModalSuccess = () => {
+//     navigation.navigate("Main")
+//     setShowModal(false);
+    
+//   }
+
+//   return (
+
+//       <KeyboardAvoidingView>
+
+//     <View style={styles.container}>
+//       <Image source={require("../assets/login_img.png")} style={styles.logo} />
+//       <Input
+//         placeholder="Enter Username or Email"
+//         leftIcon={{ type: "font-awesome", name: "envelope" }}
+//         value={email}
+//         onChangeText={setEmail}
+//         autoCapitalize="none"
+//         />
+//       <Input
+//         placeholder="Password"
+//         leftIcon={{ type: "font-awesome", name: "lock" }}
+//         value={password}
+//         onChangeText={setPassword}
+//         secureTextEntry
+//         />
+//       <Button
+//         title="Login"
+//         onPress={handleLogin}
+//         containerStyle={styles.buttonContainer}
+//       />
+
+//       <Modal
+//         visible={showModal}
+//         animationType="slide"
+//         transparent={true}
+//         onRequestClose={() => setShowModal(false)}
+//         >
+//         <View
+//           style={{
+//             flex: 1,
+//             justifyContent: "center",
+//             alignItems: "center",
+//             backgroundColor: "rgba(0, 0, 0, 0.5)",
+//           }}
+//           >
+//           <View
+//             style={{
+//               backgroundColor: "white",
+//               padding: 20,
+//               borderRadius: 10,
+//               alignItems: "center",
+//             }}
+//             >
+//             <Image
+//               source={{
+//                 uri: "https://media1.tenor.com/m/0AVbKGY_MxMAAAAC/check-mark-verified.gif",
+//               }}
+//               style={{ width: 50, height: 50 }}
+//               />
+//             <Text style={{ marginTop: 10, fontSize: 17 }}>
+//               Logged In successfully!
+//             </Text>
+//             <Button title="OK" onPress={handleModalSuccess} />
+//           </View>
+//         </View>
+//       </Modal>
+//     </View>
+// </KeyboardAvoidingView>
+  
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     // flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     // padding: 20,
+//     marginTop: 120,
+//   },
+//   logo: {
+//     width: 150,
+//     height: 150,
+//     marginBottom: 20,
+//   },
+//   buttonContainer: {
+//     marginTop: 20,
+//     width: "100%",
+//   },
+// });
+
+// export default Login;
+
+
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, Alert, Modal } from "react-native";
 import { Input, Button, Image } from "react-native-elements";
 import { useFirebase } from '../context/AuthContext';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { VideoFullscreenUpdate } from "expo-av";
-import { FullWindowOverlay } from "react-native-screens";
 import * as Font from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
-// import UserInput from "./UserInput";
 const Login = ({ navigation }) => {
   const firebase = useFirebase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [buttonColor, setButtonColor] = useState("#246BFD");
   const [fontLoaded, setFontLoaded] = useState(false);
-  useEffect(() => {
-    if (firebase.isLoggedIn) {
-      navigation.navigate('Home');
-    }
-  }, [firebase, navigation]);
-  useEffect(() => {
-    const loadFonts = async () => {
-      await Font.loadAsync({
-        'Arial': require('../assets/fonts/arial.ttf'),
-      });
-      setFontLoaded(true);
-    };
-    loadFonts();
+  const [showModal, setShowModal] = useState(false);
+    const [isLogIn, setIsLogIn] = useState(false);
+
+    useEffect(() => {
+    const logInStatus = firebase.isLoggedIn;
+    console.log(logInStatus);
+    logInStatus ? setIsLogIn(true) : setIsLogIn(false);
   }, []);
+ 
+  // useEffect(() => {
+  //   const loadFonts = async () => {
+  //     await Font.loadAsync({
+  //       'Arial': require('../assets/fonts/arial.tff'),
+  //     });
+  //     setFontLoaded(true);
+  //   };
+  //   loadFonts();
+  // }, []);
 
   // If fonts haven't loaded yet, don't render the component
-  if (!fontLoaded) {
-    return null;
-  }
+  // if (!fontLoaded) {
+  //   return null;
+  // }
+
+
   const handleLogin = async (e) => {
-    // Implement your login logic here
-    if (e.nativeEvent.key === 'Enter') {
-      e.preventDefault();
-    }
-    try {
-      const logIn = await firebase.loginUserWithEmailAndPass(email, password)
-      if (logIn) {
-        console.warn('Login Successful');
-        AsyncStorage.setItem('User-Token', email)
-        navigation.navigate('Main');
-        // ToastAndroid("Login Successful", ToastAndroid.LONG)
-        return;
-      }
+        // Implement your login logic here
+        if (e.nativeEvent.key === "Enter") {
+          e.preventDefault();
+        }
+        try {
+          if(!email || !password) {
+                Alert.alert('Please enter all the fields correctly');
+                return;
+              }
+          const logIn = await firebase.loginUserWithEmailAndPass(email, password);
+          if (logIn) {
+            setShowModal(true);
+            return;
+          } else {
+            Alert.alert(
+              "SplitEase",
+              "Log In Unsuccessful",
+              [
+                {
+                  text: "OK",
+                  onPress: async() => await navigation.navigate("Login"),
+                },
+              ],
+              { cancelable: false }
+            );
+          }
+        } catch (error) {
+          console.warn("Login Error: ", error.message);
+        }
+      };
 
-    } catch (error) {
-
-      // ToastAndroid("Please enter correct credentials", ToastAndroid.LONG)
-      console.warn('Login Error: ', error.message);
-    }
-
-  };
+      
   const handlePressIn = () => {
     setButtonColor("#181827");
   }
@@ -62,18 +218,25 @@ const Login = ({ navigation }) => {
   const handlePressOut = () => {
     setButtonColor("#246BFD");
   }
- 
 
+    const handleModalSuccess = async () => {
+    setShowModal(false);
+    await navigation.navigate("Main")
+    
+  }
+ 
+  
   return (
-    <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: -1, y: 0 }}
+
+      <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: -1, y: 0 }}
       end={{ x: 1, y: 1 }} style={styles.container}>
       <View style={styles.LoginFont}>
-        <Text style={{ color: 'white', fontSize: 45, fontFamily: 'Arial' }}>
+        <Text style={{ color: 'white', fontSize: 45 }}>
           Login
         </Text>
       </View>
       <View style={styles.innerContainer}>
-        {/* <Image source={require("../assets/login_img.png")} style={styles.logo} /> */}
+       
         <View style={styles.inputsContainer}>
           <Input
             placeholder="Username"
@@ -83,7 +246,7 @@ const Login = ({ navigation }) => {
             keyboardType="email-address"
             autoCapitalize="none"
             style={styles.inputs}
-
+            
           />
           <Input
             placeholder="Password"
@@ -94,7 +257,6 @@ const Login = ({ navigation }) => {
             style={styles.inputs}
           />
         </View>
-        {/* <View style={styles.buttonContainer}> */}
         <TouchableOpacity
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
@@ -103,35 +265,46 @@ const Login = ({ navigation }) => {
         >
           <Text style={styles.button}>Login</Text>
         </TouchableOpacity>
-        {/* </View> */}
+        <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowModal(false)}
+        >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+          >
+          <View
+            style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 10,
+              alignItems: "center",
+            }}
+            >
+            <Image
+              source={{
+                uri: "https://media1.tenor.com/m/0AVbKGY_MxMAAAAC/check-mark-verified.gif",
+              }}
+              style={{ width: 50, height: 50 }}
+              />
+            <Text style={{ marginTop: 10, fontSize: 17 }}>
+              Logged In successfully!
+            </Text>
+            <Button title="OK" onPress={handleModalSuccess} />
+          </View>
+        </View>
+      </Modal>
       </View>
     </LinearGradient>
-    // <KeyboardAvoidingView behavior="padding" style={styles.container}>
-    // <Input
-    //   leftIcon={{ type: "font-awesome", name: "envelope" }}
-    //   placeholder="Username"
-    //   autoCapitalize={'none'}
-    //   returnKeyType={'done'}
-    //   autoCorrect={false}
-    // />
-    // <Input
-    //   leftIcon={{ type: "font-awesome", name: "lock" }}
-    //   secureTextEntry
-    //   placeholder="Password"
-    //   returnKeyType={'done'}
-    //   autoCapitalize={'none'}
-    //   autoCorrect={false}
-    // />
-
-    //  <TouchableOpacity
-    //   activeOpacity={0.7}
-    //   style={styles.btnEye}
-    //   onPress={this.showPass}>
-    //   <Image source={eyeImg} style={styles.iconEye} />
-    // </TouchableOpacity> 
-    // </KeyboardAvoidingView>
-  );
-};
+    
+    );
+  };
 
 const styles = StyleSheet.create({
   container: {

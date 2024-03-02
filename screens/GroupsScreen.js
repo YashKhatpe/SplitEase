@@ -1,64 +1,67 @@
-import React, { useState } from "react";
-import { View, Text, Button, Modal, Image, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Button,
+  Modal,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import * as Contacts from "expo-contacts";
+
 const GroupsScreen = ({ navigation }) => {
-  const [showModal, setShowModal] = useState(false);
-  const handleModal = () => {
-    setShowModal(true);
+  const [hasPermission, setHasPermission] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+  const handleCreateGroup = () => {
+    if (hasPermission) {
+      navigation.navigate('CreateGroup');
+    }
   };
   return (
-    <View style={styles.container}>
-      <Button title="Open Modal" onPress={handleModal} />
-      <Modal
-        visible={showModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View
-            style={{
-              backgroundColor: "white",
-              padding: 20,
-              borderRadius: 10,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              source={{
-                uri: styles.modalImg.uri,
-              }}
-              style={styles.modalImg}
-            />
-            <Text style={styles.modalImg.text}>
-              Account created successfully!
-            </Text>
-            <Button title="OK" onPress={() => setShowModal(false)} />
-          </View>
-        </View>
-      </Modal>
-    </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={handleCreateGroup} style={styles.btn1}>
+          <Text style={{ fontSize: 20, padding: 10 }}>Create new group</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    backgroundColor: "green", 
-    height: "100%" 
-},
-  modalContainer: {
+  container: {
     flex: 1,
+    justifyContent: "ceter",
+    alignItems: "center",
+    marginTop: 10,
+    borderColor: "green",
+    borderWidth: 1,
+  },
+  btn1: {
+    position: "relative",
+    // height: 50,
+    backgroundColor: "white",
+    borderColor: "#1cc19f",
+    borderWidth: 1,
+    color: "black",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    // borderRadius: 5,
+    // Shadow properties for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    // Elevation for Android
+    elevation: 5,
   },
-  modalImg: {
-    uri: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2Fvc2xpN2I0cHRvazd3c3h1YmZuM3ZuZ29lamI1Mm40bWVoNGhsOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KBxyo8FDKE33qnj3KB/giphy.gif',
-    width: 50,
-    height: 50,
-  },
-  modalText: {
-    marginTop: 10, 
-    fontSize: 17
-  }
 });
 export default GroupsScreen;

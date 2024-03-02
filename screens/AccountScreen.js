@@ -22,8 +22,6 @@ const AccountScreen = ({ navigation }) => {
           console.log('User Eamil: ', email);
           const atIndex = email.indexOf("@");
           const shortEmail = email.slice(0, atIndex);
-          // const uname = await firebase.getUsernameFromshortEmail(shortEmail);
-          // console.log('UserName: ', uname);
           let currUser;
           getUsernameFromEmail(shortEmail)
             .then((uname) => {
@@ -43,28 +41,27 @@ const AccountScreen = ({ navigation }) => {
     }
   }, [firebase.user]);
 
-  useEffect(() => {
-    if (firebase && firebase.isLoggedIn) {
-      const fetchPicUrlFromDb = async () => {
-        const email = await firebase.user.email;
-        const atIndex = await email.indexOf("@");
-        const shortEmail = await email.slice(0, atIndex);
-        const uname = await firebase.getUsernameFromshortEmail(shortEmail)
-        const path = `users/accounts/${uname}/profPicUrl`;
-        const friendsRef = ref(db, path);
-        onValue(friendsRef, async (snapshot) => {
-          const data = await snapshot.val();
-          if (data) {
-            setProfilePicUrl(data)
-          } else {
-            setProfilePicUrl(null);
-          }
-        });
+    useEffect(() => {
+      if(firebase && firebase.isLoggedIn){
+        const fetchPicUrlFromDb = async () =>{
+          const email = await firebase.user.email;
+          const atIndex = await email.indexOf("@");
+          const shortEmail = await email.slice(0, atIndex);
+          const uname = await firebase.getUsernameFromshortEmail(shortEmail)
+          const path = `users/accounts/${uname}/profPicUrl`;
+          const friendsRef = ref(db, path);
+          onValue(friendsRef, async(snapshot) => {
+            const data = await snapshot.val();
+            if (data) {
+              setProfilePicUrl(data)
+            } else {
+              setProfilePicUrl(null);
+            }
+          });
+        }
+      fetchPicUrlFromDb();
       }
-      return () => fetchPicUrlFromDb();
-      // Return cleanup function to unsubscribe the listener
-    }
-  }, [firebase.isLoggedIn, firebase.user]);
+    }, [firebase.isLoggedIn, firebase.user]);
 
 
   const handleImagePick = async () => {
@@ -101,9 +98,10 @@ const AccountScreen = ({ navigation }) => {
 
 
 
-  const handleLogout = () => {
-    firebase.signUserOut();
-    navigation.navigate('Signup')
+  const handleLogout = async() => {
+    // firebase.setUser(null);
+    await firebase.signUserOut();
+    navigation.navigate('StartSceen');
   }
   return (
     <View style={{ flex: 1 }}>
@@ -158,10 +156,10 @@ const styles = StyleSheet.create({
     margin: 15
   },
   profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 25,
-    marginLeft: 10,
+    width: 80, 
+    height: 80, 
+    borderRadius: 15, 
+    marginLeft: 10 ,
     margin: 15
   }
 })

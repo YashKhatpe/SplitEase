@@ -1,10 +1,177 @@
+// import React, { useEffect, useState } from "react";
+// import { View, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView } from "react-native";
+// import { Input, Button, Image, Text } from "react-native-elements";
+// import { database, useFirebase } from "../context/AuthContext";
+// // import FadeInView from '../FadeInView';
+
+// const Signup = ({ navigation }) => {
+//   const firebase = useFirebase();
+//   const [showModal, setShowModal] = useState(false);
+//   const [username, setUsername] = useState("");
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [confirmPassword, setConfirmPassword] = useState("");
+//   const [emailError, setEmailError] = useState(null);
+//   useEffect(() => {
+//     if (firebase.isLoggedIn) {
+//       navigation.navigate("Home");
+//     }
+//   }, [firebase, navigation]);
+
+//   const handleSignup = async () => {
+//     try {
+//       const signUp = await firebase.signupUserWithEmailAndPass(
+//         email,
+//         username,
+//         password
+//         );
+//         if (signUp) {
+//           console.warn("Sign Up Successful");
+//           console.log(signUp);
+//           setShowModal(true);
+       
+//       } else {
+//         Alert.alert(
+//           "SplitEase",
+//           "Sign Up Unsuccessful",
+//           [
+//             {
+//               text: "OK",
+//               onPress: () => navigation.navigate("Signup"),
+//             },
+//           ],
+//           { cancelable: false }
+//         );
+//       }
+//     } catch (error) {
+//       // Handle registration errors
+//       console.error("Registration error:", error.message);
+//     }
+//   };
+
+//   return (
+//     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+
+//     <View style={styles.container}>
+//       <Image
+//         source={require("../assets/login_img.png")} // Add your logo path here
+//         style={styles.logo}
+//       />
+
+//       <Input
+//         placeholder="Username"
+//         leftIcon={{ type: "font-awesome", name: "user" }}
+//         value={username}
+//         onChangeText={setUsername}
+//         autoCapitalize="none"
+//         />
+
+//       <Input
+//         placeholder="Email"
+//         leftIcon={{ type: "font-awesome", name: "envelope" }}
+//         value={email}
+//         onChangeText={setEmail}
+//         keyboardType="email-address"
+//         autoCapitalize="none"
+//         autoCorrect={false}
+//         error={!!emailError}
+//         errorStyle={{ color: "red" }}
+//       />
+//       <Input
+//         placeholder="Password"
+//         leftIcon={{ type: "font-awesome", name: "lock" }}
+//         value={password}
+//         onChangeText={setPassword}
+//         secureTextEntry
+//       />
+//       <Input
+//         placeholder="Confirm Password"
+//         leftIcon={{ type: "font-awesome", name: "lock" }}
+//         value={confirmPassword}
+//         onChangeText={setConfirmPassword}
+//         secureTextEntry
+//         />
+//       <Text>Already have an account. </Text>
+//       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+//         <Text style={{ color: "blue", textDecorationLine: "underline" }}>
+//           Log In?
+//         </Text>
+//       </TouchableOpacity>
+
+//       <Button
+//         title="Submit"
+//         onPress={handleSignup}
+//         containerStyle={styles.buttonContainer}
+//       />
+
+//       <Modal
+//         visible={showModal}
+//         animationType="slide"
+//         transparent={true}
+//         onRequestClose={() => setShowModal(false)}
+//         >
+//         <View
+//           style={{
+//             flex: 1,
+//             justifyContent: "center",
+//             alignItems: "center",
+//             backgroundColor: "rgba(0, 0, 0, 0.5)",
+//           }}
+//           >
+//           <View
+//             style={{
+//               backgroundColor: "white",
+//               padding: 20,
+//               borderRadius: 10,
+//               alignItems: "center",
+//             }}
+//           >
+//               <Image
+//               source={{
+//                 uri: "https://media1.tenor.com/m/0AVbKGY_MxMAAAAC/check-mark-verified.gif",
+//               }}
+//               style={{ width: 50, height: 50 }}
+//               />
+//             <Text style={{ marginTop: 10, fontSize: 17 }}>
+//               Account created successfully!
+//             </Text>
+//             <Button title="OK" onPress={() => setShowModal(false)} />
+//           </View>
+//         </View>
+//       </Modal>
+//     </View>
+// </KeyboardAvoidingView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     // padding: 20,
+//     marginTop: 5,
+//   },
+//   logo: {
+//     width: 150,
+//     height: 150,
+//     marginBottom: 20,
+//   },
+//   buttonContainer: {
+//     marginTop: 20,
+//     // width: '100%',
+//   },
+// });
+
+// export default Signup;
+
+
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
-import { Input, Button, Image, Text } from 'react-native-elements';
-import { database, useFirebase } from '../context/AuthContext';
+import { View, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView } from 'react-native';
+import { Input, Text } from 'react-native-elements';
+import { useFirebase } from '../context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Font from 'expo-font';
+// import * as Font from 'expo-font';
 // import FadeInView from '../FadeInView';
 
 const Signup = ({ navigation }) => {
@@ -17,26 +184,26 @@ const Signup = ({ navigation }) => {
   const [buttonColor, setButtonColor] = useState("#246BFD");
   const [fontLoaded, setFontLoaded] = useState(false);
 
-  useEffect(() => {
-    if (firebase.isLoggedIn) {
-      navigation.navigate('Home');
-    }
-  }, [firebase, navigation]);
+  // useEffect(() => {
+  //   if (firebase.isLoggedIn) {
+  //     navigation.navigate('Home');
+  //   }
+  // }, [firebase, navigation]);
   // const window = useWindowDimensions();
-  useEffect(() => {
-    const loadFonts = async () => {
-      await Font.loadAsync({
-        'Arial': require('../assets/fonts/arial.ttf'),
-      });
-      setFontLoaded(true);
-    };
-    loadFonts();
-  }, []);
+  // useEffect(() => {
+  //   const loadFonts = async () => {
+  //     await Font.loadAsync({
+  //       'Arial': require('../assets/fonts/arial.ttf'),
+  //     });
+  //     setFontLoaded(true);
+  //   };
+  //   loadFonts();
+  // }, []);
 
-  // If fonts haven't loaded yet, don't render the component
-  if (!fontLoaded) {
-    return null;
-  }
+  // // If fonts haven't loaded yet, don't render the component
+  // if (!fontLoaded) {
+  //   return null;
+  // }
 
 
 
@@ -59,7 +226,6 @@ const Signup = ({ navigation }) => {
         if (insertDataToDb) {
           console.log('User Inserted Successfully');
         }
-        // AsyncStorage.setItem('User-Token', email)
       }
 
     } catch (error) {
@@ -78,11 +244,13 @@ const Signup = ({ navigation }) => {
 
 
   return (
+    <KeyboardAvoidingView>
+
     <LinearGradient colors={['#000070', '#000047', '#000033', '#00001f']} start={{ x: -1, y: 0 }}
       end={{ x: 1, y: 1 }} style={styles.container}
     >
       <View style={styles.signupFont}>
-          <Text style={{color:'white',fontSize:45,fontFamily:'Arial'}}>
+          <Text style={{color:'white',fontSize:45}}>
             Sign up
           </Text>
         </View>
@@ -97,7 +265,7 @@ const Signup = ({ navigation }) => {
             onChangeText={setUsername}
             autoCapitalize="none"
             style={styles.inputs}
-          />
+            />
 
 
           <Input
@@ -111,7 +279,7 @@ const Signup = ({ navigation }) => {
             error={!!emailError}
             errorStyle={{ color: 'red' }}
             style={styles.inputs}
-          />
+            />
           <Input
             placeholder="Password"
             leftIcon={{ type: 'font-awesome', name: 'lock', color: 'white' }}
@@ -119,7 +287,7 @@ const Signup = ({ navigation }) => {
             onChangeText={setPassword}
             secureTextEntry
             style={styles.inputs}
-          />
+            />
           <Input
             placeholder="Confirm Password"
             leftIcon={{ type: 'font-awesome', name: 'lock', color: 'white' }}
@@ -127,7 +295,7 @@ const Signup = ({ navigation }) => {
             onChangeText={setConfirmPassword}
             secureTextEntry
             style={styles.inputs}
-          />
+            />
         </View>
         <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
           <Text style={{ color: 'white' }}>Already have an account. </Text>
@@ -151,6 +319,7 @@ const Signup = ({ navigation }) => {
 
       </View>
     </LinearGradient>
+  </KeyboardAvoidingView>
   );
 };
 
@@ -174,7 +343,8 @@ const styles = StyleSheet.create({
     justifyContent: 'left',
     alignItems:'left',
     margin:50,
-    marginTop:150
+    marginTop:80,
+    marginBottom: 10
   },
   buttonContainer: {
     height: 50,
