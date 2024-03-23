@@ -281,11 +281,11 @@ const Login = ({ navigation }) => {
             </TouchableOpacity>
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(800).duration(2000).springify()} className="flex-row jusatify-centre">
+          <Animated.View entering={FadeInUp.delay(800).duration(2000).springify()} className="flex-row justify-centre">
             <Text>
               Don't have an account?
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity  onPress={() => navigation.navigate('Signup')}>
               <Text className="text-sky-600">
                 SignUp
               </Text>
