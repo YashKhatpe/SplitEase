@@ -83,7 +83,7 @@ const AccountScreen = ({navigation}) => {
   const handleLogout = async() => {
     // firebase.setUser(null);
     await firebase.signUserOut();
-    navigation.navigate('StartSceen');
+    navigation.navigate('StartScreen');
   }
   return (
     <View  style={{ flex: 1 }}>

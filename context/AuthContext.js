@@ -98,7 +98,7 @@ useEffect(() => {
                  const pendingPhoneNumber = childSnapshot.val().phoneNo;
                  const senderId = childSnapshot.val().senderFriend;
 
-                 if (pendingPhoneNumber === phoneNumber) {
+                 if (pendingPhoneNumber === phoneNumber || pendingPhoneNumber === `+91${phoneNumber}`) {
                      console.log('Matching phone number found in pendingFriends');
 
                      const userAccountRef = ref(db, `users/accounts/${senderId}/friendsList`);
@@ -233,8 +233,8 @@ useEffect(() => {
     }
   };
   //SingOut Context
-  const signUserOut = () => {
-    return signOut(firebaseAuth);
+  const signUserOut = async () => {
+    return await signOut(firebaseAuth);
   };
 
   // const signInWithGoogle = () => {
@@ -305,7 +305,10 @@ const checkUserNameExists = async (username) => {
 };
 
 
-
+const normalizePhoneNumber = async(phoneNumber) => {
+  // Remove any non-digit characters
+  return await phoneNumber.replace(/\D/g, '');
+}
   return (
     <FirebaseContext.Provider
       value={{
@@ -321,7 +324,8 @@ const checkUserNameExists = async (username) => {
         setUserName,
         getUsernameFromUid,
         checkPhoneNumberExists,
-        checkUserNameExists
+        checkUserNameExists,
+        normalizePhoneNumber
       }}
     >
       {props.children}

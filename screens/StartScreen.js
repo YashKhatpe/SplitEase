@@ -1,11 +1,19 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/AuthContext";
 
 
 const StartScreen = ({navigation}) => {
+  const [loginStatus, setLoginStatus] = useState(false);
 
  const firebase = useFirebase();
+ useEffect(() => {
+   firebase.user?setLoginStatus(true):setLoginStatus(false);
+   if (firebase.user) {
+    navigation.navigate('Main')
+   }
+   
+ }, [firebase.user]);
   const handleSignup = () => {
     navigation.navigate('Signup')
   }

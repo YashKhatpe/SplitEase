@@ -43,7 +43,7 @@ export default function App() {
         <Stack.Navigator>
           {!user && (
             <Stack.Screen
-              name="StartSceen"
+              name="StartScreen"
               component={StartScreen}
               options={{ headerShown: false }}
             />

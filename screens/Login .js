@@ -11,13 +11,7 @@ import { Image } from "react-native-elements";
 import { useFirebase } from "../context/AuthContext";
 import { StatusBar } from "expo-status-bar";
 import { TextInput } from "react-native-gesture-handler";
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeInDown,
-  FadeInUp,
-  FadeOut,
-} from "react-native-reanimated";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 const Login = ({ navigation }) => {
   const firebase = useFirebase();
@@ -30,13 +24,10 @@ const Login = ({ navigation }) => {
   }, [firebase.isLoggedIn]);
 
   const handleLogin = async (e) => {
-    // Implement your login logic here
-    if (e.nativeEvent.key === "Enter") {
-      e.preventDefault();
-    }
     try {
       if (!email || !password) {
         Alert.alert("Please enter all the fields correctly");
+        e.preventDefault();
         return;
       }
       const logIn = await firebase.loginUserWithEmailAndPass(email, password);
@@ -57,6 +48,17 @@ const Login = ({ navigation }) => {
         );
       }
     } catch (error) {
+      Alert.alert(
+        "SplitEase",
+        "Please enter correct credentials",
+        [
+          {
+            text: "OK",
+            onPress: async () => await navigation.navigate("Login"),
+          },
+        ],
+        { cancelable: false }
+      );
       console.warn("Login Error: ", error.message);
     }
   };
@@ -151,24 +153,21 @@ const Login = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: "100%",
+    height: "100%"
   },
   innerContainer: {
     justifyContent: "center",
-    alignItems: "center",
-    // height: '60%'
+    alignItems: "center"
   },
 
   LoginFont: {
     color: "white",
-    // flex:1,
     justifyContent: "left",
     alignItems: "left",
     margin: 50,
     marginTop: 150,
   },
   button: {
-    // backgroundColor: 'blue', // Add background color here
     fontSize: 17,
     borderRadius: 6,
     color: "white",
