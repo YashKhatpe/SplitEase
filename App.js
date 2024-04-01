@@ -17,6 +17,8 @@ import BackButton from "./components/BackButton";
 import StartScreen from "./screens/StartScreen";
 import CreateGroup from "./screens/CreateGroup";
 import InviteScreen from "./screens/InviteScreen";
+import SingleSplitBillScreen from "./screens/SingleSplitBillScreen";
+import AddExpense from "./screens/AddExpense";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -81,6 +83,7 @@ export default function App() {
           <Stack.Screen
             name="CreateGroup"
             component={CreateGroup}
+            
             options={({ navigation }) => ({
               headerShown: true,
               headerTitle: "Create a Group",
@@ -130,6 +133,20 @@ export default function App() {
               // cardStyle: { backgroundColor: "green" },
             }}
           />
+          <Stack.Screen
+            name="SingleSplitBillScreen"
+            component={SingleSplitBillScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Add Expense"
+            component={AddExpense}
+            options={{
+              headerShown: true,
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
@@ -170,6 +187,7 @@ function Main() {
         name="Friends"
         component={FriendsScreen}
         options={{ headerShown: false }}
+
       />
       <Tab.Screen
         name="Groups"
