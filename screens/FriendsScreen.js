@@ -36,7 +36,7 @@ const FriendsScreen = ({ navigation }) => {
       const db = getDatabase();
       if (firebase.user) {
         const userId = await firebase.user.uid;
-        const path = `users/accounts/pendingFriends/${userId}`;
+        const path = `users/accounts/${userId}/friendsList`;
         const friendsRef = ref(db, path);
 
         const unsubscribe = onValue(friendsRef, (snapshot) => {
@@ -47,6 +47,7 @@ const FriendsScreen = ({ navigation }) => {
               value: value,
             }));
             setUsersFriends(friendsArray);
+            console.log('Friends array: ',friendsArray);
           } else {
             setUsersFriends([]);
           }
@@ -98,31 +99,6 @@ const FriendsScreen = ({ navigation }) => {
     setSelectedFriends(updatedSelectedFriends);
   };
 
-  // const checkAndAddUserToFriends = async (puid, phoneNo) => {
-  //   try {
-  //     const result = await firebase.getData("users/accounts");
-  //     if (result) {
-  //       // Iterate over each child node (uid) in the snapshot
-  //       for (const uid in result) {
-  //         const uidSnapshot = result[uid];
-  //         // Check if the current uid has a phoneNumber property
-  //         if (uidSnapshot.phoneNumber && uidSnapshot.phoneNumber === phoneNo) {
-  //           // If the phone number matches, return the uid
-  //           await firebase.putData(
-  //             `users/accounts/${puid}/friendsList/${uidSnapshot.uid}`,
-  //             uidSnapshot
-  //           );
-  //           return true;
-  //         }
-  //       }
-  //     } else {
-  //     }
-  //   } catch (error) {
-  //     console.error("Error finding uid by phone number:", error);
-  //     return null;
-  //   }
-  // };
-
   const handleAddFriends = async () => {
     // Add selected friends to Firebase
     const userId = await firebase.user.uid;
@@ -142,8 +118,7 @@ const FriendsScreen = ({ navigation }) => {
     try {
       const db = getDatabase();
 
-      const addFriendPath = `users/accounts/${userId}/friendsList`;
-      const addFriendRef = ref(db, addFriendPath);
+      
 
       const pendingFriendPath = `users/pendingFriends`;
       const pendingFriendRef = ref(db, pendingFriendPath);
@@ -151,34 +126,40 @@ const FriendsScreen = ({ navigation }) => {
       const searchRef = ref(db, "users/accounts");
       const snapshot = await get(searchRef);
 
-      for (const friend of selectedFriends) {
-        let found = false;
-        snapshot.forEach(async (childSnapshot) => {
-          const snapshotPhoneNo = await firebase.normalizePhoneNumber(
-            childSnapshot.val().phoneNumber
-          );
-          const friendPhoneNo = await firebase.normalizePhoneNumber(
-            friend.phoneNo
-          );
-          console.log("Comparing two numbers:", snapshotPhoneNo, friendPhoneNo);
-          if (
-            snapshotPhoneNo === friendPhoneNo ||
-            snapshotPhoneNo === `91${friendPhoneNo}` ||
-            `91${snapshotPhoneNo}` === friendPhoneNo
-          ) {
-            console.log("Match Found...");
-            found = true;
-            await set(addFriendRef, childSnapshot.val());
+        for (const friend of selectedFriends) {
+          let found = false;
+            snapshot.forEach(async(childSnapshot)=>{
+              const snapshotPhoneNo = await firebase.normalizePhoneNumber(childSnapshot.val().phoneNumber);
+              const friendPhoneNo = await firebase.normalizePhoneNumber(friend.phoneNo);
+              console.log('Comparing two numbers:', snapshotPhoneNo, friendPhoneNo);
+              if (
+                snapshotPhoneNo === friendPhoneNo ||
+                snapshotPhoneNo === `91${friendPhoneNo}` ||
+                `91${snapshotPhoneNo}` === friendPhoneNo
+            ) {
+                  console.log('Match Found...');
+                  found = true;
+                  const fuid = await childSnapshot.val().uid;
+                  const addFriendRef = ref(db, `users/accounts/${userId}/friendsList/${fuid}`);
+                  const childSnapVal = await childSnapshot.val()
+                  await set(addFriendRef, childSnapVal);
+                  // Adding the user as a friend on the other side also
+                  const addFriendRefFromOtherEnd = ref(db, `users/accounts/${fuid}/friendsList/${userId}`);
+                  const friendData = firebase.userDetails;
+                  await set(addFriendRefFromOtherEnd, friendData);
+                  console.log('Friends Data: ', friendData);
+
+
+              }
+            })
+          if (!found) {
+            // If user not found then push the data to users/pendingFriends
+              const data = {
+                  phoneNo: friend.phoneNo,
+                  senderFriend: userId
+              };
+              await push(pendingFriendRef, data);
           }
-        });
-        if (!found) {
-          // If user not found then push the data to users/pendingFriends
-          const data = {
-            phoneNo: friend.phoneNo,
-            senderFriend: userId,
-          };
-          await push(pendingFriendRef, data);
-        }
       }
 
       setSelectedFriends([]);
@@ -196,22 +177,22 @@ const FriendsScreen = ({ navigation }) => {
   const MyListItem = ({ item }) => {
     console.log("Contact info passed to MyListItem:", item);
 
+    const handleItemClick = () => {
+      // Navigate to the screen where you want to split the bill
+      navigation.navigate('SingleSplitBillScreen', { friend: item });
+    };
+
     return (
-      <TouchableOpacity style={styles.contactItem}>
-        {item.value.contactInfo.imageAvailable ? (
-          <Image
-            source={{ uri: item.value.contactInfo.image.uri }}
-            style={{ width: 40, height: 40, borderRadius: 25, marginLeft: 10 }}
-          />
-        ) : (
+      <TouchableOpacity style={styles.contactItem} onPress={handleItemClick}>
+        
           <Ionicons
             style={styles.ionicon}
             name={"ios-call"}
             size={50}
             color={"green"}
           />
-        )}
-        <Text style={styles.contactName}>{item.value.contactInfo.name}</Text>
+        
+        <Text style={styles.contactName}>{item.value.username}</Text>
       </TouchableOpacity>
     );
   };
@@ -300,10 +281,10 @@ const FriendsScreen = ({ navigation }) => {
           style={{
             alignItems: "center",
             paddingVertical: 16,
-            backgroundColor: "#349DCD",
+            backgroundColor: "#4E99F5",
           }}
         >
-          <Text style={{color:'black',fontSize:19}}>Add Selected Friends</Text>
+          <Text style={{fontSize: 20}}>Add Selected Friends</Text>
         </TouchableOpacity>
       )}
     </View>
