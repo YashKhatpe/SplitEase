@@ -34,7 +34,7 @@ const Signup = ({ navigation }) => {
         return;
       }
       const signUp = await firebase.signupUserWithEmailAndPass(email, username, password, phoneNumber);
-      console.log('Signup object: ', signUp);
+      // console.log('Signup object: ', signUp);
       if (signUp) {
         console.warn('Sign Up Successful');
         navigation.navigate('Main')

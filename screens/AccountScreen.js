@@ -18,7 +18,7 @@ const AccountScreen = ({navigation}) => {
     if (firebase && firebase.user) {
       const settingUsername = async () => {
         console.log(firebase.user.uid);
-        const fetchedUsername = await firebase.getUsernameFromUid(firebase.user.uid);
+        const fetchedUsername = await firebase.userName;
         setUsername(fetchedUsername);
         setUsermail(firebase.user.email);
       }
