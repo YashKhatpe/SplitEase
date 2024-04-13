@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Text, StatusBar } from "react-native";
 import Home from "./screens/Home";
 import Signup from "./screens/Signup";
 import Login from "./screens/Login ";
@@ -17,6 +17,7 @@ import BackButton from "./components/BackButton";
 import StartScreen from "./screens/StartScreen";
 import CreateGroup from "./screens/CreateGroup";
 import InviteScreen from "./screens/InviteScreen";
+import { DARK_MODE } from "nativewind/dist/utils/selector";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,7 +44,7 @@ export default function App() {
         <Stack.Navigator>
           {!user && (
             <Stack.Screen
-              name="StartSceen"
+              name="StartScreen"
               component={StartScreen}
               options={{ headerShown: false }}
             />
@@ -145,16 +146,16 @@ function Main() {
         
       }}
       screenOptions={({ route }) => ({
-        // tabBarStyle: {
-        //   backgroundColor: "green", // Background color of the tab bar
-        //   borderTopWidth: 5, // Border width at the top of the tab bar
-        //   borderTopColor: "red", // Border color at the top of the tab bar
-        // },
+        tabBarStyle: {
+          borderTopLeftRadius:18,
+          borderTopRightRadius:18,
+          height: 70
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
           if (route.name === "Friends") {
-            iconName = "person-outline";
+            iconName = "person";
           } else if (route.name === "Groups") {
             iconName = "ios-people-outline";
           } else if (route.name === "Activity") {
@@ -163,7 +164,7 @@ function Main() {
             iconName = "person-outline";
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={28} color={color} />;
         },
       })}
     >

@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import * as Contacts from "expo-contacts";
+import { MaterialIcons } from '@expo/vector-icons';
 
 const GroupsScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -22,46 +23,40 @@ const GroupsScreen = ({ navigation }) => {
   }, []);
   const handleCreateGroup = () => {
     if (hasPermission) {
-      navigation.navigate('CreateGroup');
+      navigation.navigate("CreateGroup");
     }
   };
   return (
-    <ScrollView>
+    
       <View style={styles.container}>
         <TouchableOpacity onPress={handleCreateGroup} style={styles.btn1}>
-          <Text style={{ fontSize: 20, padding: 10 }}>Create new group</Text>
+          {/* <Text style={{ fontSize: 25, alignContent: "center" }}>Create new group</Text> */}
+          <MaterialIcons name="group-add" style={{fontSize:27, color:'black'}}/>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+  
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "ceter",
-    alignItems: "center",
-    marginTop: 10,
-    borderColor: "green",
-    borderWidth: 1,
+    // justifyContent: "ceter",
+    // alignItems: "center",
+    // marginTop: 10,
+    // borderColor: "green",
+    // borderWidth: 1,
   },
   btn1: {
-    position: "relative",
-    // height: 50,
-    backgroundColor: "white",
-    borderColor: "#1cc19f",
-    borderWidth: 1,
-    color: "black",
+    position: "absolute",
+    bottom: 27,
+    right: 35,
+    backgroundColor: "#66bb6a",
+    height: 65,
+    borderRadius: 20,
+    width: 65,
     justifyContent: "center",
     alignItems: "center",
-    // borderRadius: 5,
-    // Shadow properties for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    // Elevation for Android
-    elevation: 5,
   },
 });
 export default GroupsScreen;

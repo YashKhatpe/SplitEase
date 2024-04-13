@@ -12,13 +12,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { RadioButton } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
-import { getDatabase, child, ref, set, get, runTransaction } from "@firebase/database";
-import { firebaseApp, database } from "../context/AuthContext";
-import firebaseConfig from "../context/firebaseConfig";
+import { getDatabase, child, ref, set, get, runTransaction, push } from "@firebase/database";
+import { getUsernameFromEmail } from "../context/AuthContext";
+import { useFirebase } from "../context/AuthContext";
 
 const CreateGroup = ({ navigation }) => {
   const inputRef = useRef(null);
-
+  const firebase = useFirebase();
   useEffect(() => {
     inputRef.current.focus();
   }, []);
@@ -26,7 +26,7 @@ const CreateGroup = ({ navigation }) => {
   const [groupProfPic, setGroupProfPic] = useState(null);
   const [checked, setChecked] = useState("family");
   const [groupData, setGroupData] = useState(null);
-
+  const [username, setUsername] = useState(null);
   useEffect(() => {
     if (groupData !== null) {
       console.log(groupData);
@@ -39,35 +39,41 @@ const CreateGroup = ({ navigation }) => {
       Alert.alert("Please enter group name");
       return;
     }
-    console.log(checked);
-
-    const db = getDatabase(firebaseConfig);
-    const path = "users/groups";
+    var currUser;
+      const email = await firebase.user.email;
+      const atIndex = email.indexOf("@");
+      const shortEmail = email.slice(0, atIndex);
+      currUser = ''
+      //  await getUsernameFromEmail(shortEmail)
+   
     const groupInfo = {
       groupName,
       type: checked,
       groupProfPic,
+      members:{
+        member0: [currUser]
+      }
     };
-    const groupsRef = ref(db, path);
+    const db = getDatabase();
+    const path = "users/groups/count";
+
     try {
-      // Start a transaction to increment the count
-      await runTransaction(child(groupsRef, 'count'), (currentCount) => {
-        const updatedCount = (currentCount || 0) + 1;
-        return updatedCount;
-      });
-  
-      // Get the updated count after the transaction
-      const snapshot = await get(child(groupsRef, 'count'));
-      const currentCount = snapshot.val() || 0;
-  
+      // Fetch the current number of groups
+      const groupsCountRef = ref(db, path);
+      const snapshot = await get(groupsCountRef);
+      const currentCount = (snapshot.val() || 0) + 1;
+
       // Set the data for the new group under the next index
-      const newGroupRef = ref(groupsRef, currentCount.toString());
+      const newGroupRef = ref(db, `users/groups/${currentCount}`);
       await set(newGroupRef, groupInfo);
-  
+
+      // Update the count of groups
+      await set(groupsCountRef, currentCount);
+      
       console.log("Group added successfully!");
-    } catch (error) {
+  } catch (error) {
       console.error("Error adding group: ", error);
-    }
+  }
   };
 
   const handlePress = (value) => {
@@ -104,8 +110,8 @@ const CreateGroup = ({ navigation }) => {
       <View
         style={{
           flex: 1,
-          borderColor: "#1cc19f",
-          borderWidth: 1,
+          // borderColor: "#1cc19f",
+          // borderWidth: 1,
         }}
       >
         <View
@@ -269,7 +275,7 @@ const CreateGroup = ({ navigation }) => {
             }}
             onPress={handleAddGroup}
           >
-            <Text style={{ fontWeight: "700", fontSize: 20 }}>Done</Text>
+            <Text style={{ fontWeight: "500", fontSize: 20 }}>Done</Text>
           </TouchableOpacity>
         </View>
       </View>

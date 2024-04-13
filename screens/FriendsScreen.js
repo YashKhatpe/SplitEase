@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Image
+  Image,
 } from "react-native";
-import { getDatabase, ref, onValue, get, set } from "@firebase/database";
+import { getDatabase, ref, onValue, get, set, push } from "@firebase/database";
 import * as Contacts from "expo-contacts";
 import { Ionicons } from "@expo/vector-icons";
 import { useFirebase } from "../context/AuthContext";
+import { StatusBar } from "expo-status-bar";
 
 const FriendsScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -19,6 +20,7 @@ const FriendsScreen = ({ navigation }) => {
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [showSelectedFriends, setShowSelectedFriends] = useState(true);
   const [usersFriends, setUsersFriends] = useState(null);
+  const [filteredFriendsNo, setFilteredFriendsNo] = useState([]);
   const firebase = useFirebase();
   useEffect(() => {
     (async () => {
@@ -28,44 +30,33 @@ const FriendsScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Fetching user's friends from the database and storing in 'usersFriends' state
-    console.log('User Login Status: ',firebase.isLoggedIn);
+    console.log("User Login Status: ", firebase.isLoggedIn);
+    console.log("User Name: ", firebase.userName);
     const fetchData = async () => {
       const db = getDatabase();
       if (firebase.user) {
-        const currUser = await firebase.user.email;
-        const atIndex = await currUser.indexOf("@");
-        const shortEmail = await currUser.slice(0, atIndex);
-        const uname = await firebase.getUsernameFromshortEmail(shortEmail)
-        const path = `users/friendsList/${uname}/friends`;
+        const userId = await firebase.user.uid;
+        const path = `users/accounts/pendingFriends/${userId}`;
         const friendsRef = ref(db, path);
-  
+
         const unsubscribe = onValue(friendsRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
             const friendsArray = Object.entries(data).map(([key, value]) => ({
               key: key,
-              value: value
+              value: value,
             }));
             setUsersFriends(friendsArray);
           } else {
             setUsersFriends([]);
           }
         });
-  
-        // Return cleanup function to unsubscribe the listener
+
         return () => unsubscribe();
       }
     };
-  
     fetchData();
-  
-    // Cleanup function to unsubscribe the listener when component unmounts
-    // return () => {};
   }, [firebase.user]);
-  
-  
-
 
   const handleLoadContacts = async () => {
     if (hasPermission) {
@@ -77,79 +68,130 @@ const FriendsScreen = ({ navigation }) => {
       }
     }
     console.log("In load contacts function");
-    console.log('Selected Contacts: ',selectedFriends);
+    console.log("Selected Contacts: ", selectedFriends);
   };
   const handleLoadContactsAgain = async () => {
-    
     setShowSelectedFriends(false);
     setLoadContactsAgain(true);
-    
+
     console.log("In load contacts again function");
-    console.log('Selected Contacts: ',selectedFriends);
+    console.log("Selected Contacts: ", selectedFriends);
     // console.log('Contacts: ',contacts);
   };
- 
-  // const handleFriendSelection = (friendId, friendName) => {
-      
-  //     const isSelected = selectedFriends.some(
-  //       (friend) => friend.id === friendId
-  //     );
-  //     const updatedSelectedFriends = isSelected
-  //       ? selectedFriends.filter((friend) => friend.id !== friendId)
-  //       : [...selectedFriends, { id: friendId, name: friendName }];
-  //     setSelectedFriends(updatedSelectedFriends);
-  // };
+
   const handleFriendSelection1 = (contact) => {
-      
-      const isSelected = selectedFriends.some(
-        (friend) => friend.contactInfo.id === contact.id
-      );
-      console.log('isSelected: ',isSelected);
-      const updatedSelectedFriends = isSelected
-        ? selectedFriends.filter((friend) => friend.contactInfo.id !== contact.id)
-        : [...selectedFriends, { contactInfo: contact }];
-      setSelectedFriends(updatedSelectedFriends);
+    const uid = firebase.user.uid;
+    const isSelected = selectedFriends.some(
+      (friend) => friend.contactInfo.id === contact.id
+    );
+    console.log("isSelected: ", isSelected);
+    const updatedSelectedFriends = isSelected
+      ? selectedFriends.filter((friend) => friend.contactInfo.id !== contact.id)
+      : [
+          ...selectedFriends,
+          {
+            contactInfo: contact,
+            phoneNo: contact.phoneNumbers[0].number,
+            senderFriend: uid,
+          },
+        ];
+    setSelectedFriends(updatedSelectedFriends);
   };
+
+  // const checkAndAddUserToFriends = async (puid, phoneNo) => {
+  //   try {
+  //     const result = await firebase.getData("users/accounts");
+  //     if (result) {
+  //       // Iterate over each child node (uid) in the snapshot
+  //       for (const uid in result) {
+  //         const uidSnapshot = result[uid];
+  //         // Check if the current uid has a phoneNumber property
+  //         if (uidSnapshot.phoneNumber && uidSnapshot.phoneNumber === phoneNo) {
+  //           // If the phone number matches, return the uid
+  //           await firebase.putData(
+  //             `users/accounts/${puid}/friendsList/${uidSnapshot.uid}`,
+  //             uidSnapshot
+  //           );
+  //           return true;
+  //         }
+  //       }
+  //     } else {
+  //     }
+  //   } catch (error) {
+  //     console.error("Error finding uid by phone number:", error);
+  //     return null;
+  //   }
+  // };
 
   const handleAddFriends = async () => {
     // Add selected friends to Firebase
-    const currUser = await firebase.user.email;
-    const atIndex = await currUser.indexOf("@");
-    const shortEmail = await currUser.slice(0, atIndex);
-    const uname = await firebase.getUsernameFromshortEmail(shortEmail)
-    const path = `users/friendsList/${uname}/friends`;
+    const userId = await firebase.user.uid;
 
-   // Filter out added friends from the contacts state
-   const remainingContacts = contacts.filter(contact => {
-    // Check if the contact is not in the selectedFriends array
-    return !selectedFriends.some(selectedFriend => selectedFriend.contactInfo.id === contact.id);
-});
+    // Filter out added friends from the contacts state
+    const remainingContacts = contacts.filter((contact) => {
+      // Check if the contact is not in the selectedFriends array
+      return !selectedFriends.some(
+        (selectedFriend) => selectedFriend.contactInfo.id === contact.id
+      );
+    });
 
     // Store remaining contacts in the state
     setContacts(remainingContacts); // No same contacts will be displayed to user which is akready being added as a friends
-  
 
     // Store selected friends in the database
     try {
       const db = getDatabase();
-      const friendsRef = ref(db, path)
-      const snapshot = await get(friendsRef);
-      const existingFriends = snapshot.val() || {};
-      const updatedFriends = { ...existingFriends, selectedFriends}
-      
-      await set(friendsRef, selectedFriends)
-      console.log("Selected friends added to the database successfully");
+
+      const addFriendPath = `users/accounts/${userId}/friendsList`;
+      const addFriendRef = ref(db, addFriendPath);
+
+      const pendingFriendPath = `users/pendingFriends`;
+      const pendingFriendRef = ref(db, pendingFriendPath);
+
+      const searchRef = ref(db, "users/accounts");
+      const snapshot = await get(searchRef);
+
+      for (const friend of selectedFriends) {
+        let found = false;
+        snapshot.forEach(async (childSnapshot) => {
+          const snapshotPhoneNo = await firebase.normalizePhoneNumber(
+            childSnapshot.val().phoneNumber
+          );
+          const friendPhoneNo = await firebase.normalizePhoneNumber(
+            friend.phoneNo
+          );
+          console.log("Comparing two numbers:", snapshotPhoneNo, friendPhoneNo);
+          if (
+            snapshotPhoneNo === friendPhoneNo ||
+            snapshotPhoneNo === `91${friendPhoneNo}` ||
+            `91${snapshotPhoneNo}` === friendPhoneNo
+          ) {
+            console.log("Match Found...");
+            found = true;
+            await set(addFriendRef, childSnapshot.val());
+          }
+        });
+        if (!found) {
+          // If user not found then push the data to users/pendingFriends
+          const data = {
+            phoneNo: friend.phoneNo,
+            senderFriend: userId,
+          };
+          await push(pendingFriendRef, data);
+        }
+      }
+
+      setSelectedFriends([]);
+      console.log("Selected  friends added to the database successfully");
     } catch (error) {
       console.error(
         "Error adding selected friends to the database:",
         error.message
       );
     }
-    console.log(' Contacts: ',contacts);
-    console.log(' Selected friends: ',selectedFriends);
+    console.log(" Selected friends: ", selectedFriends);
     setShowSelectedFriends(true);
   };
-
 
   const MyListItem = ({ item }) => {
     console.log("Contact info passed to MyListItem:", item);
@@ -176,79 +218,92 @@ const FriendsScreen = ({ navigation }) => {
 
   return (
     // Displaying all the contacts
-    <View style={{ flex: 1 }}>
-        <ScrollView>
-      { !showSelectedFriends &&( <View>
-
-          {contacts.length > 0 ? (
-            contacts.map((contact) => (
-              <TouchableOpacity
-                style={styles.contactItem}
-                key={contact.id}
-                onPress={() => handleFriendSelection1(contact)}
-              >
-                {contact.imageAvailable ? (
-                  <Image
-                    source={{ uri: contact.image.uri }}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 25,
-                      marginLeft: 10,
-                    }}
-                  />
-                ) : (
-                  <Ionicons
-                    style={styles.ionicon}
-                    name={"ios-call"}
-                    size={50}
-                    color={"green"}
-                  />
-                )}
-                <Text style={styles.contactName}>{contact.name}</Text>
-              </TouchableOpacity>
-            ))
-          ) : (
-          <>
-          <View><Text>No contacts found</Text></View>
-          </>
-          )}
-
+    <View style={{flex: 1}}>
+      <StatusBar style="dark" />
+      <ScrollView>
+        {!showSelectedFriends && (
+          <View>
+            {contacts.length > 0 ? (
+              contacts.map((contact) => (
+                <TouchableOpacity
+                  style={styles.contactItem}
+                  key={contact.id}
+                  onPress={() => handleFriendSelection1(contact)}
+                >
+                  {contact.imageAvailable ? (
+                    <Image
+                      source={{ uri: contact.image.uri }}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 25,
+                        marginLeft: 10,
+                      }}
+                    />
+                  ) : (
+                    <Ionicons
+                      style={styles.ionicon}
+                      name={"ios-call"}
+                      size={50}
+                      color={"green"}
+                    />
+                  )}
+                  <Text style={styles.contactName}>{contact.name}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <>
+                <View>
+                  <Text>No contacts found</Text>
+                </View>
+              </>
+            )}
           </View>
+        )}
 
-          )}
-
-
-
-            <>
-            {/* // Displaying load contacts button for first time   */}
-            { showSelectedFriends && (   
+        <>
+          {/* // Displaying load contacts button and friends added   */}
+          {showSelectedFriends && (
             <View>
-                  {/* <FloatingButton rightVal={80} text={'Load Contacts'} onPress={handleLoadContacts}  />
-                  <FloatingButton rightVal={140} text={'Login'} onPress={() => navigation.navigate("Login")}  />
-                <FloatingButton text={'Signup'} onPress={() => navigation.navigate("Signup")}  /> */}
-                  
-                    {usersFriends && usersFriends.map(item => (
-                      <MyListItem key={item.key} item={item}/>
-                      ))}
-                      <Button title="Add Friends" onPress={handleLoadContacts} />
-                  
-                      </View>
-            )} 
+              {usersFriends &&
+                usersFriends.map((item) => (
+                  <MyListItem key={item.key} item={item} />
+                ))}
+            </View>
+          )}
+        </>
+      </ScrollView>
+      <TouchableOpacity
+        // className="p-3 m-3 absolute bottom-5 right-0 h-18"
+        onPress={handleLoadContacts}
+        style={{
+          position: "absolute",
+          bottom: 27,
+          right: 35,
+          backgroundColor: "#1AB7A2",
+          height: 65,
+          borderRadius:20,
+          width: 65,
+          justifyContent:'center',
+          alignItems:'center',
 
-            </>    
-        
-          
-        </ScrollView>
-  
+        }}
+      >
+        <Text style={{ fontSize: 27, alignContent: "center" }}>+</Text>
+      </TouchableOpacity>
+
       {/* Displaying the button to add the selected friends to db at the bottom */}
 
       {!showSelectedFriends && selectedFriends.length > 0 && (
         <TouchableOpacity
           onPress={handleAddFriends}
-          style={{ alignItems: "center", paddingVertical: 16 }}
+          style={{
+            alignItems: "center",
+            paddingVertical: 16,
+            backgroundColor: "#349DCD",
+          }}
         >
-          <Text>Add Selected Friends</Text>
+          <Text style={{color:'black',fontSize:19}}>Add Selected Friends</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -267,9 +322,9 @@ const styles = StyleSheet.create({
   contactItem: {
     flexDirection: "row",
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    pointerEvents: 'box-none'
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#ccc",
+    pointerEvents: "box-none",
   },
   contactName: {
     height: 35,
@@ -279,7 +334,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     fontSize: 18,
     fontWeight: "bold",
-    color: 'white'
+    color: "black",
+  },
+  addbuttonview: {
+    position: "absolute",
+    bottom: 0,
+  },
+  addbutton: {
+    height: "80",
+    width: "80",
   },
   ionicon: {
     marginLeft: 2,
@@ -294,9 +357,9 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   floatBtn: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 60,
     right: 20,
-  }
+  },
 });
 export default FriendsScreen;
