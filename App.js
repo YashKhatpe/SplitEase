@@ -19,7 +19,7 @@ import CreateGroup from "./screens/CreateGroup";
 import InviteScreen from "./screens/InviteScreen";
 import SingleSplitBillScreen from "./screens/SingleSplitBillScreen";
 import AddExpense from "./screens/AddExpense";
-
+import { Feather } from "@expo/vector-icons";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export default function App() {
@@ -161,22 +161,17 @@ function Main() {
         
       }}
       screenOptions={({ route }) => ({
-        // tabBarStyle: {
-        //   backgroundColor: "green", // Background color of the tab bar
-        //   borderTopWidth: 5, // Border width at the top of the tab bar
-        //   borderTopColor: "red", // Border color at the top of the tab bar
-        // },
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
           if (route.name === "Friends") {
             iconName = "person-outline";
           } else if (route.name === "Groups") {
-            iconName = "ios-people-outline";
+            iconName = "ios-people";
           } else if (route.name === "Activity") {
-            iconName = "ios-notifications-outline";
+            iconName = "ios-notifications";
           } else if (route.name === "Account") {
-            iconName = "person-outline";
+            iconName = "person";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
