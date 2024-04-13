@@ -40,14 +40,14 @@ export const FirebaseProvider = (props) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      const getUname = async () => {
-        const uname = await getUsernameFromUid(user.uid);
-      };
-      return () => getUname();
-    }
-  }, [user, userName]);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     const getUname = async () => {
+  //       const uname = await getUsernameFromUid(user.uid);
+  //     };
+  //     return () => getUname();
+  //   }
+  // }, [user, userName]);
 
   const isLoggedIn = !!user;
 
@@ -85,7 +85,6 @@ export const FirebaseProvider = (props) => {
         // Write to secure path with appropriate security rules
         const usernameRef = ref(db, `users/accounts/${userDetails.uid}`);
         await set(usernameRef, userDetails);
-        console.log(userCredential);
         console.log("User added successfully to the database");
 
         await checkPhoneNoWhenNewAcc(phoneNumber, userDetails);
@@ -127,21 +126,21 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-  const getUsernameFromUid = async (uid) => {
-    const db = getDatabase();
-    const userRef = ref(db, `users/accounts/${uid}/username`);
-    try {
-      const snapShot = await get(userRef);
-      if (snapShot.exists()) {
-        return snapShot.val();
-      } else {
-        throw new Error("Username not found from the given Uid");
-      }
-    } catch (error) {
-      console.log("Error fetching username: ", error.message);
-      throw error;
-    }
-  };
+  // const getUsernameFromUid = async (uid) => {
+  //   const db = getDatabase();
+  //   const userRef = ref(db, `users/accounts/${uid}/username`);
+  //   try {
+  //     const snapShot = await get(userRef);
+  //     if (snapShot.exists()) {
+  //       return snapShot.val();
+  //     } else {
+  //       throw new Error("Username not found from the given Uid");
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching username: ", error.message);
+  //     throw error;
+  //   }
+  // };
 
   // Function to exclude the 'friendsList' property
   function excludeFriendsList(obj) {
@@ -314,13 +313,15 @@ export const FirebaseProvider = (props) => {
 
   const checkUserNameExists = async (username) => {
     try {
+      console.log('In check username func......')
       const usersRef = ref(database, "users/accounts");
       const snapshot = await get(usersRef);
 
       if (snapshot.exists()) {
         // Iterate over each user (uid)
         for (const uid in snapshot.val()) {
-          const userData = snapshot.val()[uid];
+          const userData = snapshot.val()[uid].username;
+          console.log('Userdata is: ', userData)
           // Check if the username exists in the user's data (case-insensitive)
           const usernames = Object.values(userData).map((value) =>
             value.toLowerCase()
@@ -373,7 +374,7 @@ export const FirebaseProvider = (props) => {
         setUserDetails,
         userName,
         setUserName,
-        getUsernameFromUid,
+        // getUsernameFromUid,
         checkPhoneNumberExists,
         checkUserNameExists,
         normalizePhoneNumber,
