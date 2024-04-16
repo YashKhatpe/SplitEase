@@ -6,6 +6,7 @@ import {
   Text,
   Alert,
   Platform,
+  ActivityIndicator
 } from "react-native";
 import { Image } from "react-native-elements";
 import { useFirebase } from "../context/AuthContext";
@@ -18,12 +19,14 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogIn, setIsLogIn] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (firebase.isLoggedIn) setIsLogIn(true);
   }, [firebase.isLoggedIn]);
 
   const handleLogin = async (e) => {
+    setLoading(true)
     try {
       if (!email || !password) {
         Alert.alert("Please enter all the fields correctly");
@@ -61,9 +64,24 @@ const Login = ({ navigation }) => {
       );
       console.warn("Login Error: ", error.message);
     }
+    finally {
+      setLoading(false)
+    }
   };
 
   return (
+    <View>
+      {loading ? (
+        <View style={{
+          // position: 'absolute',
+        height: "100%",
+        justifyContent: 'center',
+        alignItems: 'center',}}>
+
+        <ActivityIndicator size="large" color="#0000ff"/>
+        </View>
+      ):(
+    
     <View className="bg-white h-full w-full">
       <StatusBar style="light" />
       <View className="w-full h-full absolute">
@@ -148,7 +166,10 @@ const Login = ({ navigation }) => {
         </View>
       </View>
     </View>
+  )}
+  </View>
   );
+
 };
 
 const styles = StyleSheet.create({

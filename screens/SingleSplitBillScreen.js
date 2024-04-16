@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/AuthContext";
-import { get, getDatabase, ref, remove, update } from "@firebase/database";
+import { get, getDatabase, ref, update } from "@firebase/database";
 import { Ionicons } from "@expo/vector-icons";
 import Emoji from "react-native-emoji";
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { Alert } from "react-native";
 const SingleSplitBillScreen = ({ navigation, route }) => {
   const [profilePic, setProfilePic] = useState(null);
@@ -30,6 +31,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
           const userData = snapshot.val();
           if (userData.profPicUrl) {
             setProfilePic(userData.profPicUrl);
+            console.log(userData.profPicUrl)
           } else {
             setProfilePic(null);
           }
@@ -41,32 +43,31 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
     fetchFriendsProfilePic();
   }, []);
 
-
   useEffect(() => {
     const retrieveBillDetails = async () => {
       const billRef = ref(db, "bills");
       const userId = await firebase.user.uid;
-      const uName = await firebase.userName;
 
       try {
         const snapShot = await get(billRef);
+        console.log('Snaoshot value: ', snapShot.val())
         const participantsBills = [];
-        snapShot.forEach((snap) => {
-          const billData = snap.val();
-          console.log('Bill data: ', billData);
-          console.log(billData.participants[0] == value.uid);
-
+        snapShot.forEach( (snap) => {
+          const billData1 =  snap.val();
+          console.log("Bill data: ", billData1);
+          
           if (
-            billData.participants.hasOwnProperty(userId) ||
-            billData.createdBy === userId ||
-            billData.createdBy === value.uid ||
-            billData.participants[0] === value.uid
-          ) {
-            participantsBills.push({
-              billData,
+            (billData1.createdBy === userId &&
+              billData1.participants[0] === value.uid && !billData1.settled ) ||
+              (billData1.createdBy === value.uid &&
+                billData1.participants[0] === userId && !billData1.settled) 
+              ) {
+                participantsBills.push({
+                  billData1,
+                });
+              }
             });
-          }
-        });
+            console.log('Participants: ',participantsBills)
 
         setBillData(participantsBills);
         console.log("Participants array1: ", participantsBills);
@@ -75,10 +76,9 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       }
     };
 
-
     // Set loading state
     retrieveBillDetails();
-    
+
     // Clear loading state
   }, []);
 
@@ -92,66 +92,57 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
     };
     fetchTotalAmount();
   }, []);
-  
-  
+
   const handleSettleUp = async () => {
     const userId = await firebase.user.uid;
-    try{
-      // I am here total Amount in friends acc is not updatoing
-      const settleFriendRef = ref(db, `users/accounts/${value.uid}/totalAmount`);
-      await update(settleFriendRef, {totalAmount: 0})
+    try {
+      // Updating total amount
+      const settleFriendRef = ref(
+        db,
+        `users/accounts/${value.uid}/totalAmount`
+      );
+      await update(settleFriendRef, { totalAmount: 0 });
       const settleRef = ref(db, `users/accounts/${userId}/totalAmount`);
-      await update(settleRef, {totalAmount: 0});
+      await update(settleRef, { totalAmount: 0 });
 
-      const billRef = ref(db, 'bills')
+      // Removing the bills after settled up
+      const billRef = ref(db, "bills");
+
       const snapShot = await get(billRef);
+
       snapShot.forEach((billSnap) => {
-        const billData = billSnap.val();
-        if (billData.createdBy === value.uid || billData.createdBy === firebase.user.uid) {
-          console.log('billSnap key: ', billSnap.key);
+        const billData1 = billSnap.val();
+        if (
+          (billData1.createdBy === value.uid && billData1.participants[0] === userId) ||
+          (billData1.createdBy === userId && billData1.participants[0] === value.uid)
+        ) {
+          console.log("billSnap key: ", billSnap.key);
           const billNodeRef = ref(db, `bills/${billSnap.key}`);
 
-          remove(billNodeRef)
-          .then(()=> {
-            console.log('Bill deleted successfully')
-          })
-          .catch((err) => {
-            console.log('Error in deleting bill: ', err.message)
-          })
+          update(billNodeRef, { settled: true })
+            .then(() => {
+              console.log("Bill settled successfully");
+            })
+            .catch((err) => {
+              console.log("Error in deleting bill: ", err.message);
+            });
         }
-      })
+      });
       Alert.alert(
         "SplitEase",
         `You are all settled up with ${value.username}`,
         [
           {
             text: "OK",
-            onPress: async () => await navigation.navigate("Friends"),
+            onPress: () => navigation.navigate("Friends"),
           },
         ],
         { cancelable: false }
       );
       setTotalAmount(null);
+    } catch (error) {
+      console.log("Error settling amount in the account", error.message);
     }
-    catch (error) {
-      console.log('Error settling amount in the account',error.message );
-      
-    }
-}
-
-  const monthNames = {
-    "01": "January",
-    "02": "February",
-    "03": "March",
-    "04": "April",
-    "05": "May",
-    "06": "June",
-    "07": "July",
-    "08": "August",
-    "09": "September",
-    "10": "October",
-    "11": "November",
-    "12": "December",
   };
 
   return (
@@ -186,6 +177,8 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
             }}
           />
         ) : (
+          <View style={{borderWidth: 1}}>
+
           <Image
             source={require("../images/poster_img.webp")}
             style={{
@@ -197,7 +190,8 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
               borderRadius: 25,
               marginLeft: 10,
             }}
-          />
+            />
+            </View>
         )}
       </View>
       <View style={styles.container}>
@@ -221,9 +215,12 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
           {totalAmount < 0 ? (
             <View>
               <Text style={{ fontSize: 15, marginLeft: 15 }}>
-                You owe Rs.{totalAmount  * -1} from {value.username}
+                You owe Rs.{totalAmount * -1} from {value.username}
               </Text>
-              <TouchableOpacity onPress={handleSettleUp} className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20">
+              <TouchableOpacity
+                onPress={handleSettleUp}
+                className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20"
+              >
                 <Text className="pl-8 text-base">Settle Up</Text>
               </TouchableOpacity>
             </View>
@@ -232,54 +229,69 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
               <Text style={{ fontSize: 15, marginLeft: 15 }}>
                 You lent Rs.{totalAmount} from {value.username}
               </Text>
-              <TouchableOpacity onPress={handleSettleUp} className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20">
+              <TouchableOpacity
+                onPress={handleSettleUp}
+                className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20"
+              >
                 <Text className="pl-8 text-base">Settle Up</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View>
               <View className=" p-3  rounded-2xl m-3 relative left-5">
-                <Text style={{fontSize: 16}}>You are Settled Up from your side</Text>
+                <Text style={{ fontSize: 16 }}>
+                  You are Settled Up from your side
+                </Text>
               </View>
-                <Text style={{fontSize: 16, paddingVertical: 10}}>Add Expenses to get started...</Text>
+              <Text style={{ fontSize: 16, paddingVertical: 10, left: 50, top: 80 }}>
+                Add Expenses to get started......
+              </Text>
             </View>
           )}
         </View>
         <ScrollView style={{ height: "68%" }}>
-          <View style={{ borderTopWidth: 1 }}>
+          <View>
             {billData ? (
               billData.map((billItem, index) => (
-                <View style={{ borderBottomWidth: 1, padding: 10 }} key={index}>
+                <View style={{ borderTopWidth: 1, borderBottomWidth: 1, padding: 10 }} key={index}>
                   <Text style={{ fontWeight: "500" }}>
                     {" "}
-                    {billItem.billData.date.split("-")[1] === "01"
+                    {billItem.billData1.date.split("-")[1] === "01"
                       ? "January"
-                      : billItem.billData.date.split("-")[1] === "02"
+                      : billItem.billData1.date.split("-")[1] === "02"
                       ? "February"
-                      : billItem.billData.date.split("-")[1] === "03"
+                      : billItem.billData1.date.split("-")[1] === "03"
                       ? "March"
-                      : billItem.billData.date.split("-")[1] === "04"
+                      : billItem.billData1.date.split("-")[1] === "04"
                       ? "April"
-                      : billItem.billData.date.split("-")[1] === "05"
+                      : billItem.billData1.date.split("-")[1] === "05"
                       ? "May"
-                      : billItem.billData.date.split("-")[1] === "06"
+                      : billItem.billData1.date.split("-")[1] === "06"
                       ? "June"
-                      : billItem.billData.date.split("-")[1] === "07"
+                      : billItem.billData1.date.split("-")[1] === "07"
                       ? "July"
-                      : billItem.billData.date.split("-")[1] === "08"
+                      : billItem.billData1.date.split("-")[1] === "08"
                       ? "August"
-                      : billItem.billData.date.split("-")[1] === "09"
+                      : billItem.billData1.date.split("-")[1] === "09"
                       ? "September"
-                      : billItem.billData.date.split("-")[1] === "10"
+                      : billItem.billData1.date.split("-")[1] === "10"
                       ? "October"
-                      : billItem.billData.date.split("-")[1] === "11"
+                      : billItem.billData1.date.split("-")[1] === "11"
                       ? "November"
-                      : billItem.billData.date.split("-")[1] === "12"
+                      : billItem.billData1.date.split("-")[1] === "12"
                       ? "December"
                       : "Invalid Month"}{" "}
-                    {billItem.billData.date.split("-")[0]}
+                    {billItem.billData1.date.split("-")[0]}
                   </Text>
-                  <View style={{ flexDirection: "row", paddingTop: 3 }}>
+                  <TouchableOpacity
+                    style={{ flexDirection: "row", paddingTop: 3 }}
+                    onPress={() =>
+                      navigation.navigate("BillDetails", {
+                        billItem: billItem,
+                        friend: value,
+                      })
+                    }
+                  >
                     <View style={{ flexDirection: "column", padding: 3 }}>
                       <Ionicons
                         name={"apps-outline"}
@@ -287,35 +299,63 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
                         color={"grey"}
                         style={{ paddingTop: 2 }}
                       />
-                      <Emoji size={20} name="smile" style={{ padding: 5 }} />
+                      {billItem.splitMethod === "even" ? (
+                        // <Emoji size={20} name="😐" style={{ padding: 5 }} />
+                        <EmojiSelector
+                          category={Categories.symbols}
+                          onEmojiSelected={(emoji) => console.log(emoji)}
+                        />
+                      ) : billData.createdBy === firebase.user.uid &&
+                        billItem.splitMethod === "creatorWillPay" ? (
+                        <Emoji size={20} name="😞" style={{ padding: 5 }} />
+                      ) : billData.createdBy === firebase.user.uid &&
+                        billItem.splitMethod === "friendWillPay" ? (
+                        <Emoji size={20} name="😊" style={{ padding: 5 }} />
+                      ) : billData.createdBy === value.uid &&
+                        billItem.splitMethod === "creatorWillPay" ? (
+                        <Emoji size={20} name="😊" style={{ padding: 5 }} />
+                      ) : billData.createdBy === value.uid &&
+                        billItem.splitMethod === "friendWillPay" ? (
+                        <Emoji size={20} name="😞" style={{ padding: 5 }} />
+                      ) : (
+                        <Emoji size={20} name="smile" style={{ padding: 5 }} />
+                      )}
                     </View>
                     <View style={{ flexDirection: "column", paddingLeft: 20 }}>
                       <Text style={{ fontSize: 17 }}>
-                        {billItem.billData.desc}
+                        {billItem.billData1.desc}
                       </Text>
                       <Text style={{ color: "grey" }}>
-                        {billItem.billData.createdBy === firebase.user.uid &&
-                        billItem.billData.splitMethod === "even"
-                          ? `You paid Rs.${
-                              billItem.billData.amount
-                            } \n ${value.username} needs to pay ${billItem.billData.amount / 2} to you`
-                          : billItem.billData.createdBy === firebase.user.uid &&
-                            billItem.billData.splitMethod === "creatorWillPay"
-                          ? `${value.username} paid Rs.${billItem.billData.amount} \nYou need to pay Rs.${billItem.billData.amount}`
-                          : billItem.billData.createdBy === firebase.user.uid &&
-                          billItem.billData.splitMethod === "friendWillPay" ? `You paid ${billItem.billData.amount} \n ${value.username} needs to pay ${billItem.billData.amount}`
-                          : billItem.billData.createdBy === value.uid &&
-                          billItem.billData.splitMethod === "even" 
-                          ? `${value.username} paid Rs.${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount / 2} to ${value.username}`
-                          : billItem.billData.createdBy === value.uid &&
-                          billItem.billData.splitMethod === "creatorWillPay" 
-                          ? `You paid ${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount} to ${value.username}` :
-                          billItem.billData.createdBy === value.uid &&
-                          billItem.billData.splitMethod === "friendWillPay" 
-                          ? `${value.username} paid ${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount}`: 'Error!!!'}
+                        {billItem.billData1.createdBy === firebase.user.uid &&
+                        billItem.billData1.splitMethod === "even"
+                          ? `You paid Rs.${billItem.billData1.amount} \n ${
+                              value.username
+                            } needs to pay ${
+                              billItem.billData1.amount / 2
+                            } to you`
+                          : billItem.billData1.createdBy === firebase.user.uid &&
+                            billItem.billData1.splitMethod === "creatorWillPay"
+                          ? `${value.username} paid Rs.${billItem.billData1.amount} \nYou need to pay Rs.${billItem.billData1.amount}`
+                          : billItem.billData1.createdBy === firebase.user.uid &&
+                            billItem.billData1.splitMethod === "friendWillPay"
+                          ? `You paid ${billItem.billData1.amount} \n ${value.username} needs to pay ${billItem.billData1.amount}`
+                          : billItem.billData1.createdBy === value.uid &&
+                            billItem.billData1.splitMethod === "even"
+                          ? `${value.username} paid Rs.${
+                              billItem.billData1.amount
+                            } \nYou need to pay ${
+                              billItem.billData1.amount / 2
+                            } to ${value.username}`
+                          : billItem.billData1.createdBy === value.uid &&
+                            billItem.billData1.splitMethod === "creatorWillPay"
+                          ? `You paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount} to ${value.username}`
+                          : billItem.billData1.createdBy === value.uid &&
+                            billItem.billData1.splitMethod === "friendWillPay"
+                          ? `${value.username} paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount}`
+                          : "Error!!!"}
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               ))
             ) : (
@@ -333,9 +373,11 @@ export default SingleSplitBillScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    // paddingRight: 20,
+    paddingTop: 10,
     backgroundColor: "#fff",
-    borderWidth: 2,
+    // borderWidth: 2,
     // backgroundColor: "#90CDF4",
   },
 });

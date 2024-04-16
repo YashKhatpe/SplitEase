@@ -20,6 +20,7 @@ import InviteScreen from "./screens/InviteScreen";
 import SingleSplitBillScreen from "./screens/SingleSplitBillScreen";
 import AddExpense from "./screens/AddExpense";
 import { Feather } from "@expo/vector-icons";
+import BillDetails from "./screens/BillDetails";
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export default function App() {
@@ -54,23 +55,23 @@ export default function App() {
             name="Main"
             component={Main}
             options={({ navigation }) => ({
-              headerShown: true,
+              headerShown: false,
               headerTitle: "SplitEase",
               headerLeft: () => <BackButton navigation={navigation} />,
               headerRight: () => (
                 <View style={{ flexDirection: "row" }}>
                   <TouchableOpacity
                     style={{ marginRight: 10 }}
-                    onPress={() => navigation.navigate("AddFriend")}
+                    onPress={() => navigation.navigate("Friends")}
                   >
                     <Ionicons name="person-add" size={24} />
                   </TouchableOpacity>
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     style={{ marginRight: 15 }}
                     onPress={() => navigation.navigate("Search")}
                   >
                     <Ionicons name="search" size={24} />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               ),
             })}
@@ -80,7 +81,7 @@ export default function App() {
             component={Home}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="CreateGroup"
             component={CreateGroup}
             
@@ -98,7 +99,7 @@ export default function App() {
                 </View>
               ),
             })}
-          />
+          /> */}
           <Stack.Screen
             name="InviteScreen"
             component={InviteScreen}
@@ -137,12 +138,20 @@ export default function App() {
             name="SingleSplitBillScreen"
             component={SingleSplitBillScreen}
             options={{
-              headerShown: false,
+              headerShown: true,
+              headerTitle: "SplitEase",
             }}
           />
           <Stack.Screen
             name="Add Expense"
             component={AddExpense}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="BillDetails"
+            component={BillDetails}
             options={{
               headerShown: true,
             }}
@@ -156,49 +165,135 @@ function Main() {
   return (
     <Tab.Navigator
       tabBarOptions={{
-        activeTintColor: "blue",
+        activeTintColor: "#227FC2",
         inactiveTintColor: "gray",
         
       }}
       screenOptions={({ route }) => ({
+        tabBarStyle: {
+          borderTopLeftRadius:18,
+          borderTopRightRadius:18,
+          height: 60
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
           if (route.name === "Friends") {
-            iconName = "person-outline";
-          } else if (route.name === "Groups") {
-            iconName = "ios-people";
-          } else if (route.name === "Activity") {
-            iconName = "ios-notifications";
-          } else if (route.name === "Account") {
             iconName = "person";
+          } else if (route.name === "Groups") {
+            iconName = "ios-people-outline";
+          } else if (route.name === "Activity") {
+            iconName = "ios-notifications-outline";
+          } else if (route.name === "Account") {
+            iconName = "person-outline";
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={28} color={color} />;
         },
       })}
     >
       <Tab.Screen
         name="Friends"
         component={FriendsScreen}
-        options={{ headerShown: false }}
+        options={({ navigation }) => ({
+          headerShown: true,
+          headerTitle: "  SplitEase",
+          // headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
 
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Groups"
         component={GroupsScreen}
-        options={{ headerShown: false }}
-      />
+        options={({ navigation }) => ({
+          headerShown: true,
+          // headerTitle: "Profile",
+          headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
+      /> */}
       <Tab.Screen
         name="Activity"
         component={ActivityScreen}
-        options={{ headerShown: false }}
+        options={({ navigation }) => ({
+          headerShown: true,
+          // headerTitle: "Profile",
+          headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
       />
       <Tab.Screen
-        name="Account"
-        component={AccountScreen}
-        options={{ headerShown: false }}
-      />
+            name="Account"
+            component={AccountScreen}
+            options={({ navigation }) => ({
+              headerShown: false,
+              headerTitle: "Profile",
+              
+              headerLeft: () => <BackButton navigation={navigation} />,
+              headerRight: () => (
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity
+                    style={{ marginRight: 10 }}
+                    onPress={() => navigation.navigate("AddFriend")}
+                  >
+                    <Ionicons name="person-add" size={24} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ marginRight: 15 }}
+                    onPress={() => navigation.navigate("Search")}
+                  >
+                    <Ionicons name="search" size={24} />
+                  </TouchableOpacity>
+                </View>
+              ),
+            })}
+          />
     </Tab.Navigator>
   );
 }

@@ -24,8 +24,8 @@ const StartScreen = ({navigation}) => {
   
   return (
     <View style={styles.container}>
-      <Image source={require("../assets/login_img.png")} style={styles.logo} />
-      <View style={{ borderLeftColor: "#1cc19f", width: 300 }}>
+      <Image source={require("../assets/start.png")} style={styles.logo} />
+      <View style={{ borderLeftColor: "#1cc19f", width: 300 ,position:'absolute', bottom:30}}>
         <TouchableOpacity onPress={handleSignup} style={styles.btn}>
           <Text style={{fontSize: 20}}>Signup</Text>
         </TouchableOpacity>
@@ -41,9 +41,11 @@ export default StartScreen;
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
+    // justifyContent: "center",
     alignItems: "center",
-    marginTop: 120,
+    // marginTop: 120,
+    display:'flex',
+    height:'100%'
   },
   logo: {
     width: 150,

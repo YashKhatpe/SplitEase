@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
 import Modal from "react-native-modal";
 import { useFirebase } from "../context/AuthContext";
-import { get, getDatabase, push, ref, update, once } from "@firebase/database";
+import { get, getDatabase, push, ref, update } from "@firebase/database";
 import { Ionicons } from "@expo/vector-icons";
 
 const AddExpense = ({ navigation, route }) => {
@@ -71,6 +71,7 @@ const AddExpense = ({ navigation, route }) => {
 
       const participants = [friend.uid];
       const billRef = ref(db, "bills");
+      const activityRef = ref(db, 'activities')
       const billData = {
         amount: parseFloat(amount),
         desc,
@@ -83,6 +84,7 @@ const AddExpense = ({ navigation, route }) => {
 
       await push(billRef, billData);
       console.log("Bill Inserted Successfully");
+      await push(activityRef, billData);
 
 
       // Calculate amount to be added to each participant
