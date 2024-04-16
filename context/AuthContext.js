@@ -78,6 +78,9 @@ export const FirebaseProvider = (props) => {
           email,
           phoneNumber,
           uid: userCredential.user.uid,
+          totalAmount: {
+            totalAmount: 0
+          }
         };
         // Write to secure path with appropriate security rules
         const usernameRef = ref(db, `users/accounts/${userDetails.uid}`);

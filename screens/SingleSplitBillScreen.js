@@ -8,17 +8,19 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/AuthContext";
-import { get, getDatabase, ref } from "@firebase/database";
+import { get, getDatabase, ref, remove, update } from "@firebase/database";
 import { Ionicons } from "@expo/vector-icons";
+import Emoji from "react-native-emoji";
+import { Alert } from "react-native";
 const SingleSplitBillScreen = ({ navigation, route }) => {
   const [profilePic, setProfilePic] = useState(null);
   const [hadBill, setHadBill] = useState(false);
   const [billData, setBillData] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(null);
   const { value } = route.params.friend;
   console.log("Friends prop: ", value);
   const firebase = useFirebase();
   const db = getDatabase();
-
   useEffect(() => {
     const fetchFriendsProfilePic = async () => {
       try {
@@ -39,33 +41,6 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
     fetchFriendsProfilePic();
   }, []);
 
-  // useEffect(() => {
-  //   const retrieveBillDetails = async ()=> {
-  //     const billRef = ref(db, 'bills');
-  //     const userId = await firebase.user.uid;
-  //     const uName = await firebase.userName;
-  //     const snapShot = await get(billRef);
-  //     const participantsBills = [];
-  //     if (snapShot.val()) {
-  //       snapShot.forEach((snap) => {
-  //         const billData = snap.val();
-  //         if ((billData.participants.hasOwnProperty(userId) || billData.createdBy === uName) && billData.participants.hasOwnProperty(value.uid) ) {
-  //           participantsBills.push({
-  //             billData
-  //           })
-  //           console.log('Participants data: ',billData);
-
-  //         }
-  //       });
-  //     }
-  //     setBillData(participantsBills)
-  //     console.log('Participants array: ', participantsBills);
-
-  //   }
-  //   // Spinner component required
-  //   retrieveBillDetails();
-  //   // Spinner component required
-  // }, []);
 
   useEffect(() => {
     const retrieveBillDetails = async () => {
@@ -78,11 +53,14 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
         const participantsBills = [];
         snapShot.forEach((snap) => {
           const billData = snap.val();
+          console.log('Bill data: ', billData);
+          console.log(billData.participants[0] == value.uid);
 
           if (
             billData.participants.hasOwnProperty(userId) ||
-            billData.createdBy === uName ||
-            billData.participants.hasOwnProperty(value.uid)
+            billData.createdBy === userId ||
+            billData.createdBy === value.uid ||
+            billData.participants[0] === value.uid
           ) {
             participantsBills.push({
               billData,
@@ -97,11 +75,69 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       }
     };
 
+
     // Set loading state
     retrieveBillDetails();
-
+    
     // Clear loading state
   }, []);
+
+  useEffect(() => {
+    const fetchTotalAmount = async () => {
+      const userId = await firebase.user.uid;
+      const totalAmtRef = ref(db, `users/accounts/${userId}/totalAmount`);
+      const snapshot = await get(totalAmtRef);
+      setTotalAmount(snapshot.val().totalAmount);
+      console.log("Total Amount value: ", snapshot.val().totalAmount);
+    };
+    fetchTotalAmount();
+  }, []);
+  
+  
+  const handleSettleUp = async () => {
+    const userId = await firebase.user.uid;
+    try{
+      // I am here total Amount in friends acc is not updatoing
+      const settleFriendRef = ref(db, `users/accounts/${value.uid}/totalAmount`);
+      await update(settleFriendRef, {totalAmount: 0})
+      const settleRef = ref(db, `users/accounts/${userId}/totalAmount`);
+      await update(settleRef, {totalAmount: 0});
+
+      const billRef = ref(db, 'bills')
+      const snapShot = await get(billRef);
+      snapShot.forEach((billSnap) => {
+        const billData = billSnap.val();
+        if (billData.createdBy === value.uid || billData.createdBy === firebase.user.uid) {
+          console.log('billSnap key: ', billSnap.key);
+          const billNodeRef = ref(db, `bills/${billSnap.key}`);
+
+          remove(billNodeRef)
+          .then(()=> {
+            console.log('Bill deleted successfully')
+          })
+          .catch((err) => {
+            console.log('Error in deleting bill: ', err.message)
+          })
+        }
+      })
+      Alert.alert(
+        "SplitEase",
+        `You are all settled up with ${value.username}`,
+        [
+          {
+            text: "OK",
+            onPress: async () => await navigation.navigate("Friends"),
+          },
+        ],
+        { cancelable: false }
+      );
+      setTotalAmount(null);
+    }
+    catch (error) {
+      console.log('Error settling amount in the account',error.message );
+      
+    }
+}
 
   const monthNames = {
     "01": "January",
@@ -113,9 +149,9 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
     "07": "July",
     "08": "August",
     "09": "September",
-    10: "October",
-    11: "November",
-    12: "December",
+    "10": "October",
+    "11": "November",
+    "12": "December",
   };
 
   return (
@@ -180,12 +216,34 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
         </TouchableOpacity>
 
         <Text style={{ fontSize: 25, margin: 15 }}>{value.username}</Text>
-        <Text style={{ fontSize: 15, marginLeft: 15 }}>You are settled up</Text>
 
         <View>
-          <TouchableOpacity className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20">
-            <Text className="pl-8 text-base">Settle Up</Text>
-          </TouchableOpacity>
+          {totalAmount < 0 ? (
+            <View>
+              <Text style={{ fontSize: 15, marginLeft: 15 }}>
+                You owe Rs.{totalAmount  * -1} from {value.username}
+              </Text>
+              <TouchableOpacity onPress={handleSettleUp} className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20">
+                <Text className="pl-8 text-base">Settle Up</Text>
+              </TouchableOpacity>
+            </View>
+          ) : totalAmount > 0 ? (
+            <View>
+              <Text style={{ fontSize: 15, marginLeft: 15 }}>
+                You lent Rs.{totalAmount} from {value.username}
+              </Text>
+              <TouchableOpacity onPress={handleSettleUp} className="w-1/2 bg-red-400 p-3 rounded-2xl m-3 relative left-20">
+                <Text className="pl-8 text-base">Settle Up</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View>
+              <View className=" p-3  rounded-2xl m-3 relative left-5">
+                <Text style={{fontSize: 16}}>You are Settled Up from your side</Text>
+              </View>
+                <Text style={{fontSize: 16, paddingVertical: 10}}>Add Expenses to get started...</Text>
+            </View>
+          )}
         </View>
         <ScrollView style={{ height: "68%" }}>
           <View style={{ borderTopWidth: 1 }}>
@@ -221,49 +279,47 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
                       : "Invalid Month"}{" "}
                     {billItem.billData.date.split("-")[0]}
                   </Text>
-                  {/* <Text>{billItem.billData.date.split("-")[2]}</Text> */}
                   <View style={{ flexDirection: "row", paddingTop: 3 }}>
-                    <Ionicons
-                      name={"apps-outline"}
-                      size={30}
-                      color={"grey"}
-                      style={{ paddingTop: 2 }}
-                    />
+                    <View style={{ flexDirection: "column", padding: 3 }}>
+                      <Ionicons
+                        name={"apps-outline"}
+                        size={30}
+                        color={"grey"}
+                        style={{ paddingTop: 2 }}
+                      />
+                      <Emoji size={20} name="smile" style={{ padding: 5 }} />
+                    </View>
                     <View style={{ flexDirection: "column", paddingLeft: 20 }}>
                       <Text style={{ fontSize: 17 }}>
                         {billItem.billData.desc}
                       </Text>
                       <Text style={{ color: "grey" }}>
-                        {billItem.billData.billPaidBy === "even"
-                          ? `You paid ${billItem.billData.amount}`
-                          : "Not even"}{" "}
-                        {Number(billItem.billData.amount) / 2}
+                        {billItem.billData.createdBy === firebase.user.uid &&
+                        billItem.billData.splitMethod === "even"
+                          ? `You paid Rs.${
+                              billItem.billData.amount
+                            } \n ${value.username} needs to pay ${billItem.billData.amount / 2} to you`
+                          : billItem.billData.createdBy === firebase.user.uid &&
+                            billItem.billData.splitMethod === "creatorWillPay"
+                          ? `${value.username} paid Rs.${billItem.billData.amount} \nYou need to pay Rs.${billItem.billData.amount}`
+                          : billItem.billData.createdBy === firebase.user.uid &&
+                          billItem.billData.splitMethod === "friendWillPay" ? `You paid ${billItem.billData.amount} \n ${value.username} needs to pay ${billItem.billData.amount}`
+                          : billItem.billData.createdBy === value.uid &&
+                          billItem.billData.splitMethod === "even" 
+                          ? `${value.username} paid Rs.${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount / 2} to ${value.username}`
+                          : billItem.billData.createdBy === value.uid &&
+                          billItem.billData.splitMethod === "creatorWillPay" 
+                          ? `You paid ${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount} to ${value.username}` :
+                          billItem.billData.createdBy === value.uid &&
+                          billItem.billData.splitMethod === "friendWillPay" 
+                          ? `${value.username} paid ${billItem.billData.amount} \nYou need to pay ${billItem.billData.amount}`: 'Error!!!'}
                       </Text>
                     </View>
                   </View>
                 </View>
               ))
             ) : (
-              <Text>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-                delectus ipsum beatae accusamus, rerum magni repudiandae quasi?
-                Iste officia ipsam quidem? Id quaerat eius at cupiditate
-                possimus soluta ea distinctio? Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Enim delectus ipsum beatae
-                accusamus, rerum magni repudiandae quasi? Iste officia ipsam
-                quidem? Id quaerat eius at cupiditate possimus soluta ea
-                distinctio? Lorem ipsum dolor sit amet consectetur adipisicing
-                elit. Enim delectus ipsum beatae accusamus, rerum magni
-                repudiandae quasi? Iste officia ipsam quidem? Id quaerat eius at
-                cupiditate possimus soluta ea distinctio? Lorem ipsum dolor sit
-                amet consectetur adipisicing elit. Enim delectus ipsum beatae
-                accusamus, rerum magni repudiandae quasi? Iste officia ipsam
-                quidem? Id quaerat eius at cupiditate possimus soluta ea
-                distinctio? Lorem ipsum dolor sit amet consectetur adipisicing
-                elit. Enim delectus ipsum beatae accusamus, rerum magni
-                repudiandae quasi? Iste officia ipsam quidem? Id quaerat eius at
-                cupiditate possimus soluta ea distinctio?
-              </Text>
+              <Text>You are all Settled Up</Text>
             )}
           </View>
         </ScrollView>

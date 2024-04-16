@@ -47,7 +47,7 @@ const FriendsScreen = ({ navigation }) => {
               value: value,
             }));
             setUsersFriends(friendsArray);
-            console.log('Friends array: ',friendsArray);
+            console.log("Friends array: ", friendsArray);
           } else {
             setUsersFriends([]);
           }
@@ -118,48 +118,54 @@ const FriendsScreen = ({ navigation }) => {
     try {
       const db = getDatabase();
 
-      
-
       const pendingFriendPath = `users/pendingFriends`;
       const pendingFriendRef = ref(db, pendingFriendPath);
 
       const searchRef = ref(db, "users/accounts");
       const snapshot = await get(searchRef);
 
-        for (const friend of selectedFriends) {
-          let found = false;
-            snapshot.forEach(async(childSnapshot)=>{
-              const snapshotPhoneNo = await firebase.normalizePhoneNumber(childSnapshot.val().phoneNumber);
-              const friendPhoneNo = await firebase.normalizePhoneNumber(friend.phoneNo);
-              console.log('Comparing two numbers:', snapshotPhoneNo, friendPhoneNo);
-              if (
-                snapshotPhoneNo === friendPhoneNo ||
-                snapshotPhoneNo === `91${friendPhoneNo}` ||
-                `91${snapshotPhoneNo}` === friendPhoneNo
-            ) {
-                  console.log('Match Found...');
-                  found = true;
-                  const fuid = await childSnapshot.val().uid;
-                  const addFriendRef = ref(db, `users/accounts/${userId}/friendsList/${fuid}`);
-                  const childSnapVal = await childSnapshot.val()
-                  await set(addFriendRef, childSnapVal);
-                  // Adding the user as a friend on the other side also
-                  const addFriendRefFromOtherEnd = ref(db, `users/accounts/${fuid}/friendsList/${userId}`);
-                  const friendData = firebase.userDetails;
-                  await set(addFriendRefFromOtherEnd, friendData);
-                  console.log('Friends Data: ', friendData);
-
-
-              }
-            })
-          if (!found) {
-            // If user not found then push the data to users/pendingFriends
-              const data = {
-                  phoneNo: friend.phoneNo,
-                  senderFriend: userId
-              };
-              await push(pendingFriendRef, data);
+      for (const friend of selectedFriends) {
+        let found = false;
+        snapshot.forEach(async (childSnapshot) => {
+          const snapshotPhoneNo = await firebase.normalizePhoneNumber(
+            childSnapshot.val().phoneNumber
+          );
+          const friendPhoneNo = await firebase.normalizePhoneNumber(
+            friend.phoneNo
+          );
+          console.log("Comparing two numbers:", snapshotPhoneNo, friendPhoneNo);
+          if (
+            snapshotPhoneNo === friendPhoneNo ||
+            snapshotPhoneNo === `91${friendPhoneNo}` ||
+            `91${snapshotPhoneNo}` === friendPhoneNo
+          ) {
+            console.log("Match Found...");
+            found = true;
+            const fuid = await childSnapshot.val().uid;
+            const addFriendRef = ref(
+              db,
+              `users/accounts/${userId}/friendsList/${fuid}`
+            );
+            const childSnapVal = await childSnapshot.val();
+            await set(addFriendRef, childSnapVal);
+            // Adding the user as a friend on the other side also
+            const addFriendRefFromOtherEnd = ref(
+              db,
+              `users/accounts/${fuid}/friendsList/${userId}`
+            );
+            const friendData = firebase.userDetails;
+            await set(addFriendRefFromOtherEnd, friendData);
+            console.log("Friends Data: ", friendData);
           }
+        });
+        if (!found) {
+          // If user not found then push the data to users/pendingFriends
+          const data = {
+            phoneNo: friend.phoneNo,
+            senderFriend: userId,
+          };
+          await push(pendingFriendRef, data);
+        }
       }
 
       setSelectedFriends([]);
@@ -179,19 +185,18 @@ const FriendsScreen = ({ navigation }) => {
 
     const handleItemClick = () => {
       // Navigate to the screen where you want to split the bill
-      navigation.navigate('SingleSplitBillScreen', { friend: item });
+      navigation.navigate("SingleSplitBillScreen", { friend: item });
     };
 
     return (
       <TouchableOpacity style={styles.contactItem} onPress={handleItemClick}>
-        
-          <Ionicons
-            style={styles.ionicon}
-            name={"ios-call"}
-            size={50}
-            color={"green"}
-          />
-        
+        <Ionicons
+          style={styles.ionicon}
+          name={"ios-call"}
+          size={50}
+          color={"green"}
+        />
+
         <Text style={styles.contactName}>{item.value.username}</Text>
       </TouchableOpacity>
     );
@@ -245,32 +250,30 @@ const FriendsScreen = ({ navigation }) => {
         <>
           {/* // Displaying load contacts button and friends added   */}
           {showSelectedFriends && (
-            <View>
-              {usersFriends &&
-                usersFriends.map((item) => (
-                  <MyListItem key={item.key} item={item} />
-                ))}
+            <View style={{ height: "100%", borderWidth: 1 }}>
+              <View>
+                {usersFriends &&
+                  usersFriends.map((item) => (
+                    <MyListItem key={item.key} item={item} />
+                  ))}
+              </View>
             </View>
           )}
         </>
       </ScrollView>
       <TouchableOpacity
-        // className="p-3 m-3 absolute bottom-5 right-0 h-18"
-        onPress={handleLoadContacts}
+        className=" p-3 m-3 absolute bottom-5 right-0 h-18 "
         style={{
-          position: "absolute",
-          bottom: 27,
-          right: 35,
-          backgroundColor: "#1AB7A2",
-          height: 65,
-          borderRadius:20,
-          width: 65,
-          justifyContent:'center',
-          alignItems:'center',
-
+          backgroundColor: "#66bb6a" ,
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 60,
+          width: 60,
+          height: 60,
         }}
+        onPress={handleLoadContacts}
       >
-        <Text style={{ fontSize: 27, alignContent: "center" }}>+</Text>
+        <Text style={{ fontSize: 25, alignContent: "center" }}>+</Text>
       </TouchableOpacity>
 
       {/* Displaying the button to add the selected friends to db at the bottom */}
@@ -284,7 +287,7 @@ const FriendsScreen = ({ navigation }) => {
             backgroundColor: "#4E99F5",
           }}
         >
-          <Text style={{fontSize: 20}}>Add Selected Friends</Text>
+          <Text style={{ fontSize: 20 }}>Add Selected Friends</Text>
         </TouchableOpacity>
       )}
     </View>
