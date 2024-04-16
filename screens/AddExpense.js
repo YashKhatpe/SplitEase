@@ -84,7 +84,6 @@ const AddExpense = ({ navigation, route }) => {
       await push(billRef, billData);
       console.log("Bill Inserted Successfully");
 
-
       // Calculate amount to be added to each participant
       let amountToAdd;
       if (billData.splitMethod === "even") {
@@ -95,32 +94,30 @@ const AddExpense = ({ navigation, route }) => {
         amountToAdd = billData.amount * -1; // Participant will pay the whole bill, so subtract from participant's account
       }
 
-
-
       // Update totalAmount for each participant
       participants.forEach(async (participant) => {
         console.log(participant);
-        const participantRef = ref(db, `users/accounts/${participant}/totalAmount`);
-
-        
+        const participantRef = ref(
+          db,
+          `users/accounts/${participant}/totalAmount`
+        );
 
         // Get current totalAmount for the participant
         const snapShot = await get(participantRef);
         let currentTotalAmount = snapShot.val().totalAmount || 0;
         console.log(currentTotalAmount, amountToAdd);
         currentTotalAmount += amountToAdd;
-        console.log('Value: ',currentTotalAmount);
+        console.log("Value: ", currentTotalAmount);
 
-          update(participantRef, { totalAmount: parseFloat(currentTotalAmount) })
-          .then(()=>{
-              console.log('Data saved successfully');
-            })
-          .catch((error)=>{
-              console.error("Data could not be saved.", error);
+        update(participantRef, { totalAmount: parseFloat(currentTotalAmount) })
+          .then(() => {
+            console.log("Data saved successfully");
           })
-          
+          .catch((error) => {
+            console.error("Data could not be saved.", error);
+          });
       });
-      
+
       let amtToAdd;
       if (billData.splitMethod === "even") {
         amtToAdd = billData.amount / -2; // Split the bill evenly
@@ -130,24 +127,27 @@ const AddExpense = ({ navigation, route }) => {
         amtToAdd = billData.amount; // Participant will pay the whole bill, so subtract from participant's account
       }
       // Update totalAmount for the creator
-      const creatorRef = ref(db, `users/accounts/${billData.createdBy}/totalAmount`);
+      const creatorRef = ref(
+        db,
+        `users/accounts/${billData.createdBy}/totalAmount`
+      );
       console.log(billData.createdBy);
-      
+
       const snapShot = await get(creatorRef);
-      let currentTotalAmount =  snapShot.val().totalAmount || 0;
-      console.log('Curr amt', currentTotalAmount);
+      let currentTotalAmount = snapShot.val().totalAmount || 0;
+      console.log("Curr amt", currentTotalAmount);
       currentTotalAmount += amtToAdd * 1;
       // const data = {
       //   totalAmount: currentTotalAmount
       // }
       update(creatorRef, { totalAmount: parseFloat(currentTotalAmount) })
-      .then(()=> {
-        console.log("Data saved successfully.");
-      })
-      .catch((error)=> {
-        console.error("Data could not be saved.", error);
-      })
-      
+        .then(() => {
+          console.log("Data saved successfully.");
+        })
+        .catch((error) => {
+          console.error("Data could not be saved.", error);
+        });
+
       Alert.alert(
         "SplitEase",
         "Bill Splitted Successfully",
@@ -179,19 +179,17 @@ const AddExpense = ({ navigation, route }) => {
     });
   }, [navigation]);
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1,}}>
       <View
         style={{
           flexDirection: "row",
           justifyContent: "flex-start",
-          borderBottomWidth: 0.3,
-          borderBottomColor: "grey",
+          borderBottomWidth: 0.1,
+          backgroundColor: "#FBFDFE" 
         }}
       >
-        <Text
-          style={{ fontSize: 18, padding: 10, borderWidth: 1, width: "79%" }}
-        >
-          Between you and : {friend.username}
+        <Text style={{ fontSize: 18, padding: 15, width: "79%" }}>
+          Split between you and : {friend.username}
         </Text>
       </View>
 
@@ -202,23 +200,61 @@ const AddExpense = ({ navigation, route }) => {
           alignItems: "center",
         }}
       >
-        <TextInput
-          placeholder="Enter Description"
-          placeholderTextColor={"gray"}
-          value={desc}
-          onChangeText={setDesc}
-        />
-        <TextInput
-          placeholder="Enter Amount"
-          placeholderTextColor={"gray"}
-          value={amount.toString()}
-          keyboardType="number-pad"
-          onChangeText={setAmount}
-        />
+        <View style={{ position: "absolute", top: 60 }}>
+          <View style={{ flexDirection: "row", margin: 20 }}>
+            <View style={{ paddingRight: 20 }}>
+              <Ionicons name="receipt-outline" size={30} />
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                borderBottomColor: "#1FB299",
+                borderBottomWidth: 2,
+                paddingBottom: 9,
+              }}
+            >
+              <TextInput
+                placeholder="Enter Description"
+                placeholderTextColor={"gray"}
+                value={desc}
+                onChangeText={setDesc}
+                style={{
+                  fontSize: 20,
+                  width: 250,
+                }}
+              />
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", margin: 20 }}>
+            <View style={{ paddingRight: 20 }}>
+              <Ionicons name="cash-outline" size={30} />
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                borderBottomColor: "#1FB299",
+                borderBottomWidth: 2,
+                paddingBottom: 9,
+              }}
+            >
+              <TextInput
+                placeholder="Enter Amount"
+                placeholderTextColor={"gray"}
+                value={amount.toString()}
+                keyboardType="number-pad"
+                onChangeText={setAmount}
+                style={{
+                  fontSize: 20,
+                  width: 250,
+                }}
+              />
+            </View>
+          </View>
 
-        <TouchableOpacity onPress={toggleModal} style={styles.button}>
-          <Text style={styles.buttonText}>{splitOption}</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={toggleModal} style={styles.button}>
+            <Text style={styles.buttonText}>{splitOption}</Text>
+          </TouchableOpacity>
+        </View>
         <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalText}>
@@ -257,9 +293,15 @@ export default AddExpense;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "blue",
+    backgroundColor: "#2194BE",
     padding: 10,
     borderRadius: 5,
+    width: 300,
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginVertical: 20,
+    borderBottomColor: "#066C92",
+    borderBottomWidth: 3,
   },
   buttonText: {
     color: "white",

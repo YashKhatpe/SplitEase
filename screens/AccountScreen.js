@@ -28,10 +28,8 @@ const AccountScreen = ({ navigation }) => {
   useEffect(() => {
     if (firebase && firebase.user) {
       const settingUsername = async () => {
-        console.log(firebase.user.uid);
-        const fetchedUsername = await firebase.getUsernameFromUid(
-          firebase.user.uid
-        );
+        const fetchedUsername = await firebase.userName;
+        console.log(firebase.userName);
         setUsername(fetchedUsername);
         setUsermail(firebase.user.email);
       };
