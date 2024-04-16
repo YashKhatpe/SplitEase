@@ -262,14 +262,17 @@ const FriendsScreen = ({ navigation }) => {
         </>
       </ScrollView>
       <TouchableOpacity
-        className=" p-3 m-3 absolute bottom-5 right-0 h-18 "
+        
         style={{
-          backgroundColor: "#66bb6a" ,
+          position: "absolute",
+          bottom: 27,
+          right: 35,
+          backgroundColor: "#1FB299",
+          height: 65,
+          borderRadius: 20,
+          width: 65,
           justifyContent: "center",
           alignItems: "center",
-          borderRadius: 60,
-          width: 60,
-          height: 60,
         }}
         onPress={handleLoadContacts}
       >
@@ -309,6 +312,8 @@ const styles = StyleSheet.create({
     // borderBottomWidth: 1,
     // borderBottomColor: "#ccc",
     pointerEvents: "box-none",
+    width:'100%',
+    color:"black"
   },
   contactName: {
     height: 35,

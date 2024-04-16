@@ -202,7 +202,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       </View>
       <View style={styles.container}>
         <TouchableOpacity
-          className="w-1/2 bg-green-400 p-3 rounded-2xl m-3 absolute bottom-5 right-0 m-4 z-10"
+          className="w-1/2 bg-green-400 p-3 rounded-2xl m-3 absolute bottom-5 right-0 z-10"
           style={{ flex: 1, flexDirection: "row" }}
           onPress={() => navigation.navigate("Add Expense", { friend: value })}
         >

@@ -54,7 +54,7 @@ export default function App() {
             name="Main"
             component={Main}
             options={({ navigation }) => ({
-              headerShown: true,
+              headerShown: false,
               headerTitle: "SplitEase",
               headerLeft: () => <BackButton navigation={navigation} />,
               headerRight: () => (
@@ -157,7 +157,7 @@ function Main() {
   return (
     <Tab.Navigator
       tabBarOptions={{
-        activeTintColor: "blue",
+        activeTintColor: "#227FC2",
         inactiveTintColor: "gray",
         
       }}
@@ -165,7 +165,7 @@ function Main() {
         tabBarStyle: {
           borderTopLeftRadius:18,
           borderTopRightRadius:18,
-          height: 70
+          height: 60
         },
         tabBarIcon: ({ color, size }) => {
           let iconName;
@@ -187,24 +187,105 @@ function Main() {
       <Tab.Screen
         name="Friends"
         component={FriendsScreen}
-        options={{ headerShown: false }}
+        options={({ navigation }) => ({
+          headerShown: true,
+          headerTitle: "  SplitEase",
+          // headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
 
       />
       <Tab.Screen
         name="Groups"
         component={GroupsScreen}
-        options={{ headerShown: false }}
+        options={({ navigation }) => ({
+          headerShown: true,
+          // headerTitle: "Profile",
+          headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
       />
       <Tab.Screen
         name="Activity"
         component={ActivityScreen}
-        options={{ headerShown: false }}
+        options={({ navigation }) => ({
+          headerShown: true,
+          // headerTitle: "Profile",
+          headerLeft: () => <BackButton navigation={navigation} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => navigation.navigate("AddFriend")}
+              >
+                <Ionicons name="person-add" size={24} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("Search")}
+              >
+                <Ionicons name="search" size={24} />
+              </TouchableOpacity>
+            </View>
+          ),
+        })}
       />
       <Tab.Screen
-        name="Account"
-        component={AccountScreen}
-        options={{ headerShown: false }}
-      />
+            name="Account"
+            component={AccountScreen}
+            options={({ navigation }) => ({
+              headerShown: false,
+              headerTitle: "Profile",
+              
+              headerLeft: () => <BackButton navigation={navigation} />,
+              headerRight: () => (
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity
+                    style={{ marginRight: 10 }}
+                    onPress={() => navigation.navigate("AddFriend")}
+                  >
+                    <Ionicons name="person-add" size={24} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ marginRight: 15 }}
+                    onPress={() => navigation.navigate("Search")}
+                  >
+                    <Ionicons name="search" size={24} />
+                  </TouchableOpacity>
+                </View>
+              ),
+            })}
+          />
     </Tab.Navigator>
   );
 }
