@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { BarChart } from "react-native-gifted-charts";
+// import { BarChart } from "react-native-gifted-charts";
 import { get, getDatabase, ref } from "@firebase/database";
 import { useFirebase } from "../context/AuthContext";
 
@@ -93,7 +93,7 @@ const BillDetails = ({ navigation, route }) => {
           <Text>{elem.amount}</Text>
         })
       }
-        {barData && (
+        {/* {barData && (
 
           <BarChart
           horizontal
@@ -105,7 +105,7 @@ const BillDetails = ({ navigation, route }) => {
           yAxisThickness={0}
           xAxisThickness={0}
           />
-        )}
+        )} */}
         </View>
         </View>
     </View>

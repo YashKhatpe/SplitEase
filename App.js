@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import Home from "./screens/Home";
 import Signup from "./screens/Signup";
@@ -19,15 +20,15 @@ import CreateGroup from "./screens/CreateGroup";
 import InviteScreen from "./screens/InviteScreen";
 import SingleSplitBillScreen from "./screens/SingleSplitBillScreen";
 import AddExpense from "./screens/AddExpense";
-import { Feather } from "@expo/vector-icons";
 import BillDetails from "./screens/BillDetails";
+import { onAuthStateChanged } from '@firebase/auth';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export default function App() {
   const [user, setUser] = useState(null);
   const [selectedTab, setSelectedTab] = useState("Friends");
   useEffect(() => {
-    authStateChanged(firebaseAuth, (user1) => {
+    onAuthStateChanged(firebaseAuth, (user1) => {
       setUser((prevUser) => {
         if (user1) {
           console.log("Hello User: ", user1.email);
@@ -203,16 +204,16 @@ function Main() {
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity
                 style={{ marginRight: 10 }}
-                onPress={() => navigation.navigate("AddFriend")}
+                onPress={() => navigation.navigate("Friends")}
               >
                 <Ionicons name="person-add" size={24} />
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{ marginRight: 15 }}
                 onPress={() => navigation.navigate("Search")}
               >
                 <Ionicons name="search" size={24} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           ),
         })}
@@ -254,16 +255,16 @@ function Main() {
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity
                 style={{ marginRight: 10 }}
-                onPress={() => navigation.navigate("AddFriend")}
+                onPress={() => navigation.navigate("Friends")}
               >
                 <Ionicons name="person-add" size={24} />
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{ marginRight: 15 }}
                 onPress={() => navigation.navigate("Search")}
               >
                 <Ionicons name="search" size={24} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           ),
         })}

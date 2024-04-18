@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import {
   View,
   StyleSheet,
@@ -6,7 +7,8 @@ import {
   Text,
   Alert,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from "react-native";
 import { Image } from "react-native-elements";
 import { useFirebase } from "../context/AuthContext";
@@ -70,6 +72,9 @@ const Login = ({ navigation }) => {
   };
 
   return (
+    <KeyboardAvoidingView>
+
+    
     <View>
       {loading ? (
         <View style={{
@@ -168,6 +173,7 @@ const Login = ({ navigation }) => {
     </View>
   )}
   </View>
+  </KeyboardAvoidingView>
   );
 
 };

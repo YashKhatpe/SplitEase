@@ -48,6 +48,7 @@ const ActivityScreen = ({ route, navigation }) => {
               color={"grey"}
               style={{ padding: 10 }}
             />
+           <View style={{flexDirection: "column"}}>
 
             <Text
               style={{
@@ -60,8 +61,11 @@ const ActivityScreen = ({ route, navigation }) => {
                 fontWeight: "bold",
               }}
               >
-              {item.desc}
+            {item.desc}
             </Text>
+            <Text style={{paddingLeft: 15}}>Transaction between you and King</Text>
+            <Text style={{paddingLeft: 15}} >{item.date}</Text>
+                </View>
           </TouchableOpacity>
         ))
       ) : (

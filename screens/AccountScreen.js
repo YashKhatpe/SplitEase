@@ -1,40 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { getStorage, getDownloadURL, ref as storRef, uploadBytes } from "@firebase/storage";
+import * as FileSystem from 'expo-file-system';
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   Image,
   Dimensions,
   Modal,
   TouchableOpacity,
 } from "react-native";
+
 import { useFirebase } from "../context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
-import { getDatabase, ref, set, onValue,  } from "@firebase/database";
-import { getDownloadURL, getStorage, ref as storRef,uploadString } from "firebase/storage";
-import { FileSystem } from 'expo-file-system'
+import { getDatabase, ref, set, onValue } from "@firebase/database";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 const AccountScreen = ({ navigation }) => {
   const firebase = useFirebase();
   const db = getDatabase();
-  const storage = getStorage()
-
-  // useEffect(() => {
-  //   const uploadStorage = async ()=> {
-
-  //     const userId = await firebase.user.uid;
-  //     const storageRef = storRef(storage, `users/accounts/${userId}/profPicUrl`);
-  //     try {
-  //       await uploadString(storageRef, imageUri, 'data_url')
-  //     } catch (error) {
-
-  //     }
-  //   }
-  //   uploadStorage();
-  //   }, []);
-
+ const storage = getStorage()
   const [username, setUsername] = useState("Guest");
   const [usermail, setUsermail] = useState("");
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -43,29 +28,24 @@ const AccountScreen = ({ navigation }) => {
   useEffect(() => {
     if (firebase && firebase.user) {
       const settingUsername = async () => {
-        console.log(firebase.user.uid);
         const fetchedUsername = await firebase.userName;
+        console.log('username: '+fetchedUsername);
         setUsername(fetchedUsername);
         setUsermail(firebase.user.email);
       };
       settingUsername();
     }
-  }, [firebase.user]);
+  }, []);
 
   useEffect(() => {
     if (firebase && firebase.isLoggedIn) {
       const fetchPicUrlFromDb = async () => {
         const uid = await firebase.user.uid;
-        const path = `users/accounts/${uid}/profPicUrl`;
-        const friendsRef = ref(db, path);
-        onValue(friendsRef, async (snapshot) => {
-          const data = await snapshot.val();
-          if (data) {
-            setProfilePicUrl(data);
-          } else {
-            setProfilePicUrl(null);
-          }
-        });
+        const storageRef = storRef(storage, `profilePic/${uid}`);
+        if (storageRef) {
+          const url = await getDownloadURL(storageRef);
+          setProfilePicUrl(url)
+        }
       };
       fetchPicUrlFromDb();
     }
@@ -74,7 +54,7 @@ const AccountScreen = ({ navigation }) => {
   const handleImagePick = async () => {
     try {
       if (!firebase.isLoggedIn) {
-        console.warn("You are not Logged In..");
+        console.warn("You are not Logged In....");
         return;
       }
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -85,38 +65,31 @@ const AccountScreen = ({ navigation }) => {
       });
 
       if (!result.canceled) {
-        const picUrl = result.assets[0].uri;
-        const base64Data = await FileSystem.readAsStringAsync(picUrl, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        const dataUrl = `data:image/jpeg;base64,${base64Data}`;
-
+        const picUri = result.assets[0].uri;
+        console.log("Selected image URI: ", picUri);
         const userId = await firebase.user.uid;
-      const storageRef = storRef(storage, `users/accounts/${userId}/profPicUrl`);
-      await uploadString(storageRef, picUrl, 'data_url');
-      console.log('Image uploaded in storage')
-        console.log("Selected image URI:", picUrl);
-        setProfilePicUrl(picUrl);
-        const uid = firebase.user.uid;
-        const profPicUrl = picUrl;
-        const path = `users/accounts/${uid}/profPicUrl`;
-        const friendsRef = ref(db, path);
-        const response = await set(friendsRef, profPicUrl);
-        if (!response) console.log("Server Error uploading pic");
-        console.log("Successfully update profile pic");
-
+        const res = await fetch(picUri)
+        const filename = `${userId}`;
+        
+        const blobData = await res.blob();
+        const storageRef = storRef(storage, `profilePic/${filename}`);
+        await uploadBytes(storageRef, blobData);
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log('Downloaded url: ', downloadURL)
+        setProfilePicUrl(downloadURL)
+        console.log("Successfully updated profile pic URL  ");
       }
     } catch (error) {
-      console.error("Error selecting image: ", error);
+      console.error("Error selecting image:", error);
     }
   };
 
   const handleLogout = async () => {
     // firebase.setUser(null);
     await firebase.signUserOut();
-    navigation.navigate("StartScreen");
+    navigation.navigate("Login");
   };
-;
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -126,15 +99,7 @@ const AccountScreen = ({ navigation }) => {
           style={{ height: "100%", width: "100%" }}
         />
       </View>
-      {/* <View
-        style={{
-          borderBottomWidth: 0,
-          borderBottomColor: "#ccc",
-          zIndex: 10,
-        }}
-      >
-        <Text style={styles.heading}>Account Screen</Text>
-      </View> */}
+
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1, flexDirection: "row" }}>
           <View style={{ marginTop: 160, marginLeft: 20 }}>
@@ -276,7 +241,7 @@ const AccountScreen = ({ navigation }) => {
               PREFERENCE
             </Text>
           </View>
-          <View style={{}}>
+          <View>
             <TouchableOpacity
               title="Select Profile Pic"
               // onPress={handleImagePick}

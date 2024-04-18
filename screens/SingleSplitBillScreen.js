@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Emoji from "react-native-emoji";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import { Alert } from "react-native";
+import { getDownloadURL, getStorage, ref as storRef } from "@firebase/storage";
 const SingleSplitBillScreen = ({ navigation, route }) => {
   const [profilePic, setProfilePic] = useState(null);
   const [hadBill, setHadBill] = useState(false);
@@ -22,20 +23,15 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
   console.log("Friends prop: ", value);
   const firebase = useFirebase();
   const db = getDatabase();
+  const storage = getStorage();
+
+
   useEffect(() => {
     const fetchFriendsProfilePic = async () => {
       try {
-        const friendRef = ref(db, `users/accounts/${value.uid}`);
-        const snapshot = await get(friendRef);
-        if (snapshot.exists()) {
-          const userData = snapshot.val();
-          if (userData.profPicUrl) {
-            setProfilePic(userData.profPicUrl);
-            console.log(userData.profPicUrl)
-          } else {
-            setProfilePic(null);
-          }
-        }
+        const storageRef = storRef(storage, `profilePic/${value.uid}`)
+        const url = await getDownloadURL(storageRef);
+        setProfilePic(url)
       } catch (error) {
         console.log("Error retrieving friends profile pic url: ", error);
       }

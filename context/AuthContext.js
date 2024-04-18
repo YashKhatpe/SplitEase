@@ -9,7 +9,6 @@ import {
 } from "@firebase/auth";
 import { getDatabase, set, get, ref, remove } from "@firebase/database";
 import firebaseConfig from "./firebaseConfig";
-import "firebase/database";
 
 // Initialize Firebase app
 export const firebaseApp = initializeApp(firebaseConfig);
@@ -28,7 +27,6 @@ export const FirebaseProvider = (props) => {
   const [userName, setUserName] = useState(null);
   const [youOweFriend, setYouOweFriend] = useState(0);
   const [friendOwesYou, setFriendOwesYou] = useState(0);
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
@@ -52,9 +50,10 @@ export const FirebaseProvider = (props) => {
   const isLoggedIn = !!user;
 
   // Helper functions to update owed amounts
-  const updateYouOweFriend = (amount) => setYouOweFriend(prevAmount => prevAmount + amount);
-  const updateFriendOwesYou = (amount) => setFriendOwesYou(prevAmount => prevAmount + amount);
-
+  const updateYouOweFriend = (amount) =>
+    setYouOweFriend((prevAmount) => prevAmount + amount);
+  const updateFriendOwesYou = (amount) =>
+    setFriendOwesYou((prevAmount) => prevAmount + amount);
 
   // Sign Up Context
   const signupUserWithEmailAndPass = async (
@@ -79,8 +78,8 @@ export const FirebaseProvider = (props) => {
           phoneNumber,
           uid: userCredential.user.uid,
           totalAmount: {
-            totalAmount: 0
-          }
+            totalAmount: 0,
+          },
         };
         // Write to secure path with appropriate security rules
         const usernameRef = ref(db, `users/accounts/${userDetails.uid}`);
@@ -313,7 +312,7 @@ export const FirebaseProvider = (props) => {
 
   const checkUserNameExists = async (username) => {
     try {
-      console.log('In check username func......')
+      console.log("In check username func......");
       const usersRef = ref(database, "users/accounts");
       const snapshot = await get(usersRef);
 
@@ -321,7 +320,7 @@ export const FirebaseProvider = (props) => {
         // Iterate over each user (uid)
         for (const uid in snapshot.val()) {
           const userData = snapshot.val()[uid].username;
-          console.log('Userdata is: ', userData)
+          console.log("Userdata is: ", userData);
           // Check if the username exists in the user's data (case-insensitive)
           const usernames = Object.values(userData).map((value) =>
             value.toLowerCase()
@@ -356,9 +355,6 @@ export const FirebaseProvider = (props) => {
     return formattedDate;
   };
 
-  
-
-
   return (
     <FirebaseContext.Provider
       value={{
@@ -382,7 +378,7 @@ export const FirebaseProvider = (props) => {
         youOweFriend,
         setYouOweFriend,
         updateYouOweFriend,
-        updateFriendOwesYou
+        updateFriendOwesYou,
       }}
     >
       {props.children}
