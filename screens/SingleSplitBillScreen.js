@@ -172,11 +172,11 @@ useEffect(() => {
               top: -30,
               left: 30,
               borderRadius: 25,
-              marginLeft: 10,
+              marginLeft: 10
             }}
           />
         ) : (
-          <View style={{borderWidth: 1}}>
+          <View>
 
           <Image
             source={require("../images/poster_img.webp")}
@@ -195,7 +195,7 @@ useEffect(() => {
       </View>
       <View style={styles.container}>
         <TouchableOpacity
-          className="w-1/2 sticky bg-green-400 p-3 rounded-2xl m-3 absolute bottom-5 right-0 m-4 z-10"
+          className="w-1/2 sticky bg-green-400 p-3 rounded-2xl m-3 absolute bottom-3 right-0 m-4 z-10"
           style={{ flex: 1, flexDirection: "row" }}
           onPress={() => navigation.navigate("Add Expense", { friend: value })}
         >
@@ -213,7 +213,7 @@ useEffect(() => {
         <View>
           {totalAmount < 0 ? (
             <View>
-              <Text style={{ fontSize: 15, marginLeft: 15 }}>
+              <Text style={{ fontSize: 15, marginLeft: 80 }}>
                 You owe Rs.{(totalAmount * -1).toFixed(2)} from {friendName}
               </Text>
               <TouchableOpacity
@@ -225,7 +225,7 @@ useEffect(() => {
             </View>
           ) : totalAmount > 0 ? (
             <View>
-              <Text style={{ fontSize: 15, marginLeft: 15 }}>
+              <Text style={{ fontSize: 15, marginLeft: 80 }}>
                 {friendName} owes you Rs.{(totalAmount).toFixed(2)}
               </Text>
               <TouchableOpacity
@@ -341,12 +341,20 @@ useEffect(() => {
                           ? `You paid ${billItem.billData1.amount} \n ${friendName} needs to pay ${billItem.billData1.amount}`
                           : billItem.billData1.createdBy === value.uid &&
                             billItem.billData1.splitMethod === "friendEqual"
-                          ? `${friendName} paid Rs.${
+                          ? `You paid Rs.${
                               billItem.billData1.amount
-                            } \nYou need to pay ${
+                            } \n${friendName} need to pay ${
                               billItem.billData1.amount / 2
                             } to ${friendName}`
-                          : billItem.billData1.createdBy === value.uid &&
+                          : billItem.billData1.createdBy === firebase.user.uid &&
+                          billItem.billData1.splitMethod === "friendEqual"
+                        ? `${friendName} paid Rs.${
+                            billItem.billData1.amount
+                          } \nYou need to pay ${
+                            billItem.billData1.amount / 2
+                          } to ${friendName}`
+                        :
+                        billItem.billData1.createdBy === value.uid &&
                             billItem.billData1.splitMethod === "creatorWillPay"
                           ? `You paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount} to ${friendName}`
                           : billItem.billData1.createdBy === value.uid &&
@@ -384,9 +392,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     // paddingRight: 20,
-    paddingTop: 10,
-    backgroundColor: "#fff",
-    // borderWidth: 2,
+    backgroundColor: "#fff"
     // backgroundColor: "#90CDF4",
   },
 });

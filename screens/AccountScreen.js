@@ -26,7 +26,7 @@ const AccountScreen = ({ navigation }) => {
   const storage = getStorage();
   const [username, setUsername] = useState("Guest");
   const [usermail, setUsermail] = useState("");
-  const [profilePicUrl, setProfilePicUrl] = useState(null);
+  const [profilePicUrl, setProfilePicUrl] = useState('https://cdn.vectorstock.com/i/500p/55/67/no-image-available-picture-vector-31595567.jpg');
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
@@ -45,15 +45,18 @@ const AccountScreen = ({ navigation }) => {
     if (firebase && firebase.isLoggedIn) {
       const fetchPicUrlFromDb = async () => {
         const uid = await firebase.user.uid;
-        const storageRef = storRef(storage, `profilePic/${uid}`);
+        const storageRef = storRef(storage, `profilePic/${uid}`) || 0;
         if (storageRef) {
           const url = await getDownloadURL(storageRef);
           setProfilePicUrl(url);
+        } else {
+          setProfilePicUrl('https://cdn.vectorstock.com/i/500p/55/67/no-image-available-picture-vector-31595567.jpg')
         }
+        console.log('end..');
       };
       fetchPicUrlFromDb();
     }
-  }, [firebase.user]);
+  }, [firebase.user, firebase.isLoggedIn]);
 
   const handleImagePick = async () => {
     try {
@@ -93,6 +96,11 @@ const AccountScreen = ({ navigation }) => {
     await firebase.signUserOut();
     navigation.navigate("Login");
   };
+
+  const handleChangePwd = async() => {
+    console.log('Hello');
+    await navigation.navigate('changepwd');
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -244,7 +252,7 @@ const AccountScreen = ({ navigation }) => {
           <View style={{}}>
             <TouchableOpacity
               title="Select Profile Pic"
-              // onPress={handleImagePick}
+              onPress={handleChangePwd}
               style={{ flexDirection: "row", paddingBottom: 20 }}
             >
               <Ionicons

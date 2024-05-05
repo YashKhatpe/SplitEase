@@ -11,7 +11,7 @@ const ActivityScreen = ({ route, navigation }) => {
   
   const fetchBillData = async () => {
     try {
-      const userId = firebase.user.uid;
+      const userId = await firebase.user.uid;
       const billRef = ref(db, "bills");
       const snapshot = await get(billRef);
       if (snapshot.exists()) {
@@ -26,6 +26,7 @@ const ActivityScreen = ({ route, navigation }) => {
           }
         });
         setBillData(data);
+        console.log('Done fetching....');
       }
     } catch (error) {
       console.log("Error fetching bills for activity:", error.message);

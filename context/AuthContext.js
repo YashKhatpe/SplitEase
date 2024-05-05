@@ -32,20 +32,14 @@ export const FirebaseProvider = (props) => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       setUser(user);
       // console.log('User: ',user);
+      
     });
 
     // Cleanup function
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     const getUname = async () => {
-  //       const uname = await getUsernameFromUid(user.uid);
-  //     };
-  //     return () => getUname();
-  //   }
-  // }, [user, userName]);
+
 
   const isLoggedIn = !!user;
 
@@ -125,21 +119,6 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-  // const getUsernameFromUid = async (uid) => {
-  //   const db = getDatabase();
-  //   const userRef = ref(db, `users/accounts/${uid}/username`);
-  //   try {
-  //     const snapShot = await get(userRef);
-  //     if (snapShot.exists()) {
-  //       return snapShot.val();
-  //     } else {
-  //       throw new Error("Username not found from the given Uid");
-  //     }
-  //   } catch (error) {
-  //     console.log("Error fetching username: ", error.message);
-  //     throw error;
-  //   }
-  // };
 
   // Function to exclude the 'friendsList' property
   function excludeFriendsList(obj) {
@@ -262,6 +241,7 @@ export const FirebaseProvider = (props) => {
       password
     );
     if (logIn) {
+      console.log('Hello info: ', firebaseAuth);
       return true;
     }
   };

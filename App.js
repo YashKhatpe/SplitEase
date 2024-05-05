@@ -26,6 +26,7 @@ import SplitOptionScreen from './screens/SplitOptionScreen';
 import FirstRoute from './screens/FirstRoute';
 import SecondRoute from './screens/SecondRoute';
 import ThirdRoute from './screens/ThirdRoute';
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export default function App() {
@@ -189,6 +190,13 @@ export default function App() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="changepwd"
+            component={ChangePasswordScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
@@ -240,12 +248,6 @@ function Main() {
               >
                 <Ionicons name="person-add" size={24} />
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => navigation.navigate("Search")}
-              >
-                <Ionicons name="search" size={24} />
-              </TouchableOpacity> */}
             </View>
           ),
         })}

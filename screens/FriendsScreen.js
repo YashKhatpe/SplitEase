@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -144,7 +143,7 @@ const FriendsScreen = ({ navigation }) => {
               db,
               `users/accounts/${fuid}/friendsList/${userId}`
             );
-            const friendData = firebase.userDetails;
+            const friendData = await firebase.userDetails;
             await set(addFriendRefFromOtherEnd, friendData);
             console.log("Friends Data: ", friendData);
           }
