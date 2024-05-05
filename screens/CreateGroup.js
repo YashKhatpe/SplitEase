@@ -12,8 +12,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { RadioButton } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
-import { getDatabase, child, ref, set, get, runTransaction, push } from "@firebase/database";
-import { getUsernameFromEmail } from "../context/AuthContext";
+import { getDatabase, ref, set, get  } from "@firebase/database";
 import { useFirebase } from "../context/AuthContext";
 
 const CreateGroup = ({ navigation }) => {

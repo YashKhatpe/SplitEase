@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { get, getDatabase, ref } from "@firebase/database";
 import { useFirebase } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,11 +8,11 @@ const ActivityScreen = ({ route, navigation }) => {
   const [billData, setBillData] = useState([]);
   const firebase = useFirebase();
   const db = getDatabase();
-  const userId = firebase.user.uid;
-
+  
   const fetchBillData = async () => {
     try {
-      const billRef = ref(db, "activities");
+      const userId = firebase.user.uid;
+      const billRef = ref(db, "bills");
       const snapshot = await get(billRef);
       if (snapshot.exists()) {
         const data = [];
@@ -37,6 +37,9 @@ const ActivityScreen = ({ route, navigation }) => {
   }, []);
 
   return (
+    <ScrollView>
+
+    
     <View style={{ flex: 1 }}>
       {billData.length > 0 ? (
         billData.map((item, index) => (
@@ -63,7 +66,7 @@ const ActivityScreen = ({ route, navigation }) => {
               >
             {item.desc}
             </Text>
-            <Text style={{paddingLeft: 15}}>Transaction between you and King</Text>
+            <Text style={{paddingLeft: 15, bottom: 5}}>Transaction between you and King</Text>
             <Text style={{paddingLeft: 15}} >{item.date}</Text>
                 </View>
           </TouchableOpacity>
@@ -72,6 +75,7 @@ const ActivityScreen = ({ route, navigation }) => {
         <Text>No data available</Text>
       )}
     </View>
+    </ScrollView>
   );
 };
 

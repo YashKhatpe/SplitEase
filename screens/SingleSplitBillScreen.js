@@ -19,13 +19,16 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
   const [hadBill, setHadBill] = useState(false);
   const [billData, setBillData] = useState([]);
   const [totalAmount, setTotalAmount] = useState(null);
+  const [friendName, setFriendName] = useState('');
   const { value } = route.params.friend;
   console.log("Friends prop: ", value);
   const firebase = useFirebase();
   const db = getDatabase();
   const storage = getStorage();
 
-
+useEffect(() => {
+  setFriendName(value.username);
+}, []);
   useEffect(() => {
     const fetchFriendsProfilePic = async () => {
       try {
@@ -46,7 +49,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
 
       try {
         const snapShot = await get(billRef);
-        console.log('Snaoshot value: ', snapShot.val())
+        console.log('Snapshot value: ', snapShot.val())
         const participantsBills = [];
         snapShot.forEach( (snap) => {
           const billData1 =  snap.val();
@@ -81,7 +84,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchTotalAmount = async () => {
       const userId = await firebase.user.uid;
-      const totalAmtRef = ref(db, `users/accounts/${userId}/totalAmount`);
+      const totalAmtRef = ref(db, `users/accounts/${userId}/friendsList/${value.uid}/totalAmount`);
       const snapshot = await get(totalAmtRef);
       setTotalAmount(snapshot.val().totalAmount);
       console.log("Total Amount value: ", snapshot.val().totalAmount);
@@ -95,10 +98,10 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       // Updating total amount
       const settleFriendRef = ref(
         db,
-        `users/accounts/${value.uid}/totalAmount`
+        `users/accounts/${value.uid}/friendsList/${userId}/totalAmount`
       );
       await update(settleFriendRef, { totalAmount: 0 });
-      const settleRef = ref(db, `users/accounts/${userId}/totalAmount`);
+      const settleRef = ref(db, `users/accounts/${userId}/friendsList/${value.uid}/totalAmount`);
       await update(settleRef, { totalAmount: 0 });
 
       // Removing the bills after settled up
@@ -126,7 +129,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       });
       Alert.alert(
         "SplitEase",
-        `You are all settled up with ${value.username}`,
+        `You are all settled up with ${friendName}`,
         [
           {
             text: "OK",
@@ -192,7 +195,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
       </View>
       <View style={styles.container}>
         <TouchableOpacity
-          className="w-1/2 bg-green-400 p-3 rounded-2xl m-3 absolute bottom-5 right-0 m-4 z-10"
+          className="w-1/2 sticky bg-green-400 p-3 rounded-2xl m-3 absolute bottom-5 right-0 m-4 z-10"
           style={{ flex: 1, flexDirection: "row" }}
           onPress={() => navigation.navigate("Add Expense", { friend: value })}
         >
@@ -205,13 +208,13 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
           <Text className="pl-3 text-base">Add Expense</Text>
         </TouchableOpacity>
 
-        <Text style={{ fontSize: 25, margin: 15 }}>{value.username}</Text>
+        <Text style={{ fontSize: 25, margin: 15 }}>{friendName}</Text>
 
         <View>
           {totalAmount < 0 ? (
             <View>
               <Text style={{ fontSize: 15, marginLeft: 15 }}>
-                You owe Rs.{totalAmount * -1} from {value.username}
+                You owe Rs.{(totalAmount * -1).toFixed(2)} from {friendName}
               </Text>
               <TouchableOpacity
                 onPress={handleSettleUp}
@@ -223,7 +226,7 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
           ) : totalAmount > 0 ? (
             <View>
               <Text style={{ fontSize: 15, marginLeft: 15 }}>
-                You lent Rs.{totalAmount} from {value.username}
+                {friendName} owes you Rs.{(totalAmount).toFixed(2)}
               </Text>
               <TouchableOpacity
                 onPress={handleSettleUp}
@@ -234,20 +237,21 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
             </View>
           ) : (
             <View>
-              <View className=" p-3  rounded-2xl m-3 relative left-5">
+              <View className="p-3 rounded-2xl m-3 relative left-5">
                 <Text style={{ fontSize: 16 }}>
                   You are Settled Up from your side
                 </Text>
               </View>
-              <Text style={{ fontSize: 16, paddingVertical: 10, left: 50, top: 80 }}>
-                Add Expenses to get started......
+                <Text style={{ fontSize: 16, paddingVertical: 10, left: 50, top: 80 }}>
+                Add Expenses to get started.....
               </Text>
             </View>
           )}
         </View>
         <ScrollView style={{ height: "68%" }}>
           <View>
-            {billData ? (
+            
+            {(billData && totalAmount != 0) && (
               billData.map((billItem, index) => (
                 <View style={{ borderTopWidth: 1, borderBottomWidth: 1, padding: 10 }} key={index}>
                   <Text style={{ fontWeight: "500" }}>
@@ -323,40 +327,49 @@ const SingleSplitBillScreen = ({ navigation, route }) => {
                       </Text>
                       <Text style={{ color: "grey" }}>
                         {billItem.billData1.createdBy === firebase.user.uid &&
-                        billItem.billData1.splitMethod === "even"
+                        billItem.billData1.splitMethod === "creatorEqual"
                           ? `You paid Rs.${billItem.billData1.amount} \n ${
-                              value.username
+                              friendName
                             } needs to pay ${
                               billItem.billData1.amount / 2
                             } to you`
                           : billItem.billData1.createdBy === firebase.user.uid &&
                             billItem.billData1.splitMethod === "creatorWillPay"
-                          ? `${value.username} paid Rs.${billItem.billData1.amount} \nYou need to pay Rs.${billItem.billData1.amount}`
+                          ? `${friendName} paid Rs.${billItem.billData1.amount} \nYou need to pay Rs.${billItem.billData1.amount}`
                           : billItem.billData1.createdBy === firebase.user.uid &&
                             billItem.billData1.splitMethod === "friendWillPay"
-                          ? `You paid ${billItem.billData1.amount} \n ${value.username} needs to pay ${billItem.billData1.amount}`
+                          ? `You paid ${billItem.billData1.amount} \n ${friendName} needs to pay ${billItem.billData1.amount}`
                           : billItem.billData1.createdBy === value.uid &&
-                            billItem.billData1.splitMethod === "even"
-                          ? `${value.username} paid Rs.${
+                            billItem.billData1.splitMethod === "friendEqual"
+                          ? `${friendName} paid Rs.${
                               billItem.billData1.amount
                             } \nYou need to pay ${
                               billItem.billData1.amount / 2
-                            } to ${value.username}`
+                            } to ${friendName}`
                           : billItem.billData1.createdBy === value.uid &&
                             billItem.billData1.splitMethod === "creatorWillPay"
-                          ? `You paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount} to ${value.username}`
+                          ? `You paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount} to ${friendName}`
                           : billItem.billData1.createdBy === value.uid &&
                             billItem.billData1.splitMethod === "friendWillPay"
-                          ? `${value.username} paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount}`
-                          : "Error!!!"}
+                          ? `${friendName} paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.amount}`
+                          : billItem.billData1.createdBy === firebase.user.uid &&
+                          billItem.billData1.splitMethod === "unequal" ? `You paid ${billItem.billData1.amount} \n${friendName} need to pay ${billItem.billData1.splitDetails['secondPerson']}`
+                          : billItem.billData1.createdBy === value.uid &&
+                          billItem.billData1.splitMethod === "unequal" ? `${friendName} paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.splitDetails['firstPerson']}` 
+                          : billItem.billData1.createdBy === firebase.user.uid &&
+                          billItem.billData1.splitMethod === "percent" ? `You paid ${billItem.billData1.amount} \n${friendName} need to pay ${billItem.billData1.splitDetails['secondPersonAmt']}` 
+                          : billItem.billData1.createdBy === value.uid &&
+                          billItem.billData1.splitMethod === "percent" ? `${friendName} paid ${billItem.billData1.amount} \nYou need to pay ${billItem.billData1.splitDetails['firstPersonAmt']}` : "Error!!!"}
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
               ))
-            ) : (
-              <Text>You are all Settled Up</Text>
-            )}
+            ) 
+            // : (
+            //   <Text>You are all Settled Up</Text>
+            // )
+            }
           </View>
         </ScrollView>
       </View>

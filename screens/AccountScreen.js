@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { getStorage, getDownloadURL, ref as storRef, uploadBytes } from "@firebase/storage";
-import * as FileSystem from 'expo-file-system';
+import {
+  getStorage,
+  getDownloadURL,
+  ref as storRef,
+  uploadBytes,
+} from "@firebase/storage";
 import {
   View,
   Text,
@@ -13,13 +17,13 @@ import {
 
 import { useFirebase } from "../context/AuthContext";
 import * as ImagePicker from "expo-image-picker";
-import { getDatabase, ref, set, onValue } from "@firebase/database";
+import { getDatabase } from "@firebase/database";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 const AccountScreen = ({ navigation }) => {
   const firebase = useFirebase();
   const db = getDatabase();
- const storage = getStorage()
+  const storage = getStorage();
   const [username, setUsername] = useState("Guest");
   const [usermail, setUsermail] = useState("");
   const [profilePicUrl, setProfilePicUrl] = useState(null);
@@ -29,13 +33,13 @@ const AccountScreen = ({ navigation }) => {
     if (firebase && firebase.user) {
       const settingUsername = async () => {
         const fetchedUsername = await firebase.userName;
-        console.log('username: '+fetchedUsername);
+        console.log("username: " + fetchedUsername);
         setUsername(fetchedUsername);
         setUsermail(firebase.user.email);
       };
       settingUsername();
     }
-  }, []);
+  }, [firebase.user]);
 
   useEffect(() => {
     if (firebase && firebase.isLoggedIn) {
@@ -44,12 +48,12 @@ const AccountScreen = ({ navigation }) => {
         const storageRef = storRef(storage, `profilePic/${uid}`);
         if (storageRef) {
           const url = await getDownloadURL(storageRef);
-          setProfilePicUrl(url)
+          setProfilePicUrl(url);
         }
       };
       fetchPicUrlFromDb();
     }
-  }, []);
+  }, [firebase.user]);
 
   const handleImagePick = async () => {
     try {
@@ -68,15 +72,15 @@ const AccountScreen = ({ navigation }) => {
         const picUri = result.assets[0].uri;
         console.log("Selected image URI: ", picUri);
         const userId = await firebase.user.uid;
-        const res = await fetch(picUri)
+        const res = await fetch(picUri);
         const filename = `${userId}`;
-        
+
         const blobData = await res.blob();
         const storageRef = storRef(storage, `profilePic/${filename}`);
         await uploadBytes(storageRef, blobData);
         const downloadURL = await getDownloadURL(storageRef);
-        console.log('Downloaded url: ', downloadURL)
-        setProfilePicUrl(downloadURL)
+        console.log("Downloaded url: ", downloadURL);
+        setProfilePicUrl(downloadURL);
         console.log("Successfully updated profile pic URL  ");
       }
     } catch (error) {
@@ -89,7 +93,6 @@ const AccountScreen = ({ navigation }) => {
     await firebase.signUserOut();
     navigation.navigate("Login");
   };
-
 
   return (
     <View style={{ flex: 1 }}>
@@ -112,7 +115,6 @@ const AccountScreen = ({ navigation }) => {
                 borderWidth: 3,
                 overflow: "hidden",
               }}
-              // style={styles.profilePic}
               onPress={() => setModalVisible(true)}
             >
               {profilePicUrl ? (
@@ -155,7 +157,7 @@ const AccountScreen = ({ navigation }) => {
                 marginTop: 160,
                 marginLeft: 40,
                 fontSize: 25,
-                color: "#F4F8FB",
+                color: "red",
               }}
             >
               {username}
@@ -173,24 +175,6 @@ const AccountScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
-      {/* <View
-        style={{
-          flexDirection: "row",
-          position: "absolute",
-          left: 20,
-          top: 200,
-          borderBottomWidth: 1,
-          borderBottomColor: "#ccc",
-        }}
-      >
-        <Image
-          source={require("../assets/login_img.png")}
-          style={{ width: 50, height: 50, borderRadius: 25, marginRight: 60 }}
-        />
-        <Text style={{ fontSize: 21, marginTop: 10, marginRight: 60 }}>
-          Change Password
-        </Text>
-      </View> */}
       <View
         style={{ flex: 2, borderBottomWidth: 1, borderBottomColor: "#d1d1d1" }}
       >
@@ -219,7 +203,6 @@ const AccountScreen = ({ navigation }) => {
           <View style={{}}>
             <TouchableOpacity
               title="Select Profile Pic"
-              // onPress={handleImagePick}
               style={{ flexDirection: "row", paddingBottom: 20 }}
             >
               <Ionicons
@@ -244,7 +227,6 @@ const AccountScreen = ({ navigation }) => {
           <View>
             <TouchableOpacity
               title="Select Profile Pic"
-              // onPress={handleImagePick}
               style={{ flexDirection: "row", paddingBottom: 20 }}
             >
               <Ionicons
@@ -280,22 +262,20 @@ const AccountScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* <Button title='Login' onPress={() => navigation.navigate('Login')} style={{ alignItems: "center", paddingVertical: 16, width: 50 }} />
-      <Button title='Signup' onPress={() => navigation.navigate('Signup')} style={{ alignItems: "center", paddingVertical: 26, width: 90 }} /> */}
-      <View style={{ padding:20}}>
+      <View style={{ padding: 20 }}>
         <TouchableOpacity
           title="Logout"
           onPress={handleLogout}
-          style={{ flexDirection: "row", }}
+          style={{ flexDirection: "row" }}
         >
           <Ionicons
-                name="log-out"
-                size={29}
-                // color={'red'}
-                style={{ paddingRight: 20, paddingLeft: 10 }}
-              />
-          <Text style={{ fontSize: 20, paddingHorizontal: 10, marginTop: 2 }}>Log out</Text>
-                
+            name="log-out"
+            size={29}
+            style={{ paddingRight: 20, paddingLeft: 10 }}
+          />
+          <Text style={{ fontSize: 20, paddingHorizontal: 10, marginTop: 2 }}>
+            Log out
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -308,12 +288,6 @@ const styles = StyleSheet.create({
     margin: 15,
   },
   profilePic: {
-    // width: 80,
-    // height: 80,
-    // borderRadius: 35,
-    // marginLeft: 10,
-    // margin: 15,
-    // borderWidth: 1,
     flex: 1,
     width: null,
     height: null,

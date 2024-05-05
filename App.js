@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import Home from "./screens/Home";
 import Signup from "./screens/Signup";
 import Login from "./screens/Login ";
@@ -22,6 +22,10 @@ import SingleSplitBillScreen from "./screens/SingleSplitBillScreen";
 import AddExpense from "./screens/AddExpense";
 import BillDetails from "./screens/BillDetails";
 import { onAuthStateChanged } from '@firebase/auth';
+import SplitOptionScreen from './screens/SplitOptionScreen';
+import FirstRoute from './screens/FirstRoute';
+import SecondRoute from './screens/SecondRoute';
+import ThirdRoute from './screens/ThirdRoute';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 export default function App() {
@@ -155,6 +159,34 @@ export default function App() {
             component={BillDetails}
             options={{
               headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="SplitOption"
+            component={SplitOptionScreen}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="first"
+            component={FirstRoute}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="second"
+            component={SecondRoute}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="third"
+            component={ThirdRoute}
+            options={{
+              headerShown: false,
             }}
           />
         </Stack.Navigator>
