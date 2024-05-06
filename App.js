@@ -72,12 +72,6 @@ export default function App() {
                   >
                     <Ionicons name="person-add" size={24} />
                   </TouchableOpacity>
-                  {/* <TouchableOpacity
-                    style={{ marginRight: 15 }}
-                    onPress={() => navigation.navigate("Search")}
-                  >
-                    <Ionicons name="search" size={24} />
-                  </TouchableOpacity> */}
                 </View>
               ),
             })}
@@ -87,25 +81,6 @@ export default function App() {
             component={Home}
             options={{ headerShown: false }}
           />
-          {/* <Stack.Screen
-            name="CreateGroup"
-            component={CreateGroup}
-            
-            options={({ navigation }) => ({
-              headerShown: true,
-              headerTitle: "Create a Group",
-              headerLeft: () => (
-                <View>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("Groups")}
-                    style={{ marginLeft: 10 }}
-                  >
-                    <Ionicons name="arrow-back" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
-              ),
-            })}
-          /> */}
           <Stack.Screen
             name="InviteScreen"
             component={InviteScreen}
@@ -190,13 +165,13 @@ export default function App() {
               headerShown: false,
             }}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="changepwd"
             component={ChangePasswordScreen}
             options={{
               headerShown: false,
             }}
-          />
+          /> */}
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseProvider>
@@ -253,31 +228,7 @@ function Main() {
         })}
 
       />
-      {/* <Tab.Screen
-        name="Groups"
-        component={GroupsScreen}
-        options={({ navigation }) => ({
-          headerShown: true,
-          // headerTitle: "Profile",
-          headerLeft: () => <BackButton navigation={navigation} />,
-          headerRight: () => (
-            <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity
-                style={{ marginRight: 10 }}
-                onPress={() => navigation.navigate("AddFriend")}
-              >
-                <Ionicons name="person-add" size={24} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => navigation.navigate("Search")}
-              >
-                <Ionicons name="search" size={24} />
-              </TouchableOpacity>
-            </View>
-          ),
-        })}
-      /> */}
+
       <Tab.Screen
         name="Activity"
         component={ActivityScreen}
@@ -293,12 +244,6 @@ function Main() {
               >
                 <Ionicons name="person-add" size={24} />
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                style={{ marginRight: 15 }}
-                onPress={() => navigation.navigate("Search")}
-              >
-                <Ionicons name="search" size={24} />
-              </TouchableOpacity> */}
             </View>
           ),
         })}
