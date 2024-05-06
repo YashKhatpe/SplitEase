@@ -97,10 +97,10 @@ const AccountScreen = ({ navigation }) => {
     navigation.navigate("Login");
   };
 
-  const handleChangePwd = async() => {
-    console.log('Hello');
-    await navigation.navigate('changepwd');
-  }
+  // const handleChangePwd = async() => {
+  //   console.log('Hello');
+  //   await navigation.navigate('changepwd');
+  // }
 
   return (
     <View style={{ flex: 1 }}>
@@ -165,7 +165,7 @@ const AccountScreen = ({ navigation }) => {
                 marginTop: 160,
                 marginLeft: 40,
                 fontSize: 25,
-                color: "red",
+                color: "white",
               }}
             >
               {username}
@@ -252,7 +252,7 @@ const AccountScreen = ({ navigation }) => {
           <View style={{}}>
             <TouchableOpacity
               title="Select Profile Pic"
-              onPress={handleChangePwd}
+              // onPress={handleChangePwd}
               style={{ flexDirection: "row", paddingBottom: 20 }}
             >
               <Ionicons
