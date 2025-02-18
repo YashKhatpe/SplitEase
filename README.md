@@ -1,4 +1,4 @@
-# React-Native-App
+# Split Ease: A React-Native-App
   ## Introduction
   Introducing SplitEase Revolutionizes the Way We Share Expenses in our interconnected world, shared expenses have become an integral part of social interactions, whether dining out with friends, traveling with   
   colleagues, or managing household finances. 
